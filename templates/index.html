@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>大眾運輸整合系統</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="{{ url_for('static', filename='js/front.js')}}"></script>
+    <link href="{{ url_for('static', filename='css/login.css')}}" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <div class='loginType' id="b_type1">Create account</div>
+    <div class='loginType' id="b_type2">Already have an account</div>
+    <form>
+        <p>User <input type="text" id='c_user'/></p>
+        <span id="c_user_msg">>> upper limit 8 words</span>
+        <p>Password <input type="password" id='c_pwd'/></p>
+        <span id="c_pwd_msg">>> upper limit 8 words</span>
+        <p>Confirm Password <input type="password" id='c_pwd_confirm'/></p>
+        <button id="sub1">Done</button>
+    </form>
+    <form>
+        <p>User <input type="text" id='user'/></p>
+        <p>Password <input type="password" id='pwd'/></p>
+        <button id="sub2">Login</button>
+    </form>
+    <div id="try">Try</div>
+</body>
+</html>

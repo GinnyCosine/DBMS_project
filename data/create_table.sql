@@ -76,8 +76,10 @@ create table THSRtrainsInfo(
 create table TRAtrainsTime(
     TrainNo int not NULL,
     StationID int not NULL,
-    ArrivalTime varchar(10),
-    DepartureTime varchar(10),
+    ArrivalHour int,
+    ArrivalMin int,
+    DepartureHour int,
+    DepartureMin int,
     StopSequence int,
     primary key(TrainNo, StationID),
     foreign key(TrainNo) references TRAtrainsInfo(TrainNo)
@@ -86,7 +88,8 @@ create table TRAtrainsTime(
 create table THSRtrainsTime(
     TrainNo int not NULL,
     StationID int not NULL,
-    DepartureTime varchar(10),
+    DepartureHour int,
+    DepartureMin int,
     StopSequence int,
     primary key(TrainNo, StationID),
     foreign key(TrainNo) references THSRtrainsInfo(TrainNo)
