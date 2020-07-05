@@ -544,6 +544,7 @@ function getRailwayStationsFromKeyin(keyin, type){
     return stations;
 }
 
+// 寫這個
 function getRailwayResult(from_station, to_station, month, date, hour, min, type){
     var req_url = "http://127.0.0.1:5000/RailwayResult/" + type;
     var dataJSON = {

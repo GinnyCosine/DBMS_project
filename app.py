@@ -75,7 +75,10 @@ def stationsFromKeyin(trType):
         stations.append({'stationName':st[0]})
     return jsonify({'stations':stations})
 
-
+#　寫這個
+@app.route("/RailwayResult/<trType>", methods = ['POST'])
+def RailwayResult(trType):
+    return jsonify({'status':'OK'})
 
 if __name__ == "__main__":        # on running python app.py
     app.run()                     # run the flask app
