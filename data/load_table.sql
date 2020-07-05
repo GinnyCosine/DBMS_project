@@ -68,3 +68,10 @@ fields terminated by ','
 enclosed by '"'
 lines terminated by '\r\n'
 ignore 1 lines;
+
+load data local infile './Cities.csv'
+into table Cities
+fields terminated by ','
+enclosed by '"'
+lines terminated by '\r\n'
+ignore 1 lines;

@@ -52,16 +52,22 @@ format_ = '?$format=JSON'
 ######################
 #### TRA stations ####
 ######################
-# origin = 'https://ptx.transportdata.tw/MOTC/v2/Rail/TRA/Station'
-# select_ = "&$select=StationID,StationName,StationAddress"
-# with open('TRAstations.csv', 'w', newline='') as csvfile:
-#     writer = csv.writer(csvfile)
-#     writer.writerow(['StationID', 'StationName','City'])
-#     url = origin + format_ + select_
-#     json_data = get_json(url,driver)
-#     data = json.loads(json_data)
-#     for item in data:
-#         writer.writerow([int(item['StationID']), item['StationName']['Zh_tw'],item['StationAddress'][5:8]])
+origin = 'https://ptx.transportdata.tw/MOTC/v2/Rail/TRA/Station'
+select_ = "&$select=StationID,StationName,StationAddress"
+with open('TRAstations.csv', 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(['StationID', 'StationName','City'])
+    url = origin + format_ + select_
+    json_data = get_json(url,driver)
+    data = json.loads(json_data)
+    for item in data:
+        if len(item['StationAddress']) > 0:
+            if item['StationAddress'][4].isdigit() == True:
+                writer.writerow([int(item['StationID']), item['StationName']['Zh_tw'],item['StationAddress'][5:8]])
+            else:
+                writer.writerow([int(item['StationID']), item['StationName']['Zh_tw'],item['StationAddress'][3:6]])
+        else:
+            writer.writerow([int(item['StationID']), item['StationName']['Zh_tw']])
 
 
 #########################
@@ -86,17 +92,17 @@ format_ = '?$format=JSON'
 #########################
 #### TRA trains time ####
 #########################
-origin = 'https://ptx.transportdata.tw/MOTC/v2/Rail/TRA/GeneralTimetable'
-select_ = "&$select=GeneralTimetable"
-with open('TRAtrainsTime.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['TrainNo', 'StationID', 'ArrivalHour', 'ArrivalMin', 'DepartureHour', 'DepartureMin', 'StopSequence'])
-    url = origin + format_ + select_
-    json_data = get_json(url,driver)
-    data = json.loads(json_data)
-    for item in data:
-        for station in item['GeneralTimetable']['StopTimes']:
-            writer.writerow([int(item['GeneralTimetable']['GeneralTrainInfo']['TrainNo']), int(station['StationID']), int(station['ArrivalTime'][0:2]), int(station['ArrivalTime'][3:5]), int(station['DepartureTime'][0:2]), int(station['DepartureTime'][3:5]), station['StopSequence']])
+# origin = 'https://ptx.transportdata.tw/MOTC/v2/Rail/TRA/GeneralTimetable'
+# select_ = "&$select=GeneralTimetable"
+# with open('TRAtrainsTime.csv', 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile)
+#     writer.writerow(['TrainNo', 'StationID', 'ArrivalHour', 'ArrivalMin', 'DepartureHour', 'DepartureMin', 'StopSequence'])
+#     url = origin + format_ + select_
+#     json_data = get_json(url,driver)
+#     data = json.loads(json_data)
+#     for item in data:
+#         for station in item['GeneralTimetable']['StopTimes']:
+#             writer.writerow([int(item['GeneralTimetable']['GeneralTrainInfo']['TrainNo']), int(station['StationID']), int(station['ArrivalTime'][0:2]), int(station['ArrivalTime'][3:5]), int(station['DepartureTime'][0:2]), int(station['DepartureTime'][3:5]), station['StopSequence']])
 
 #########################
 #### TRA trains day #####
@@ -145,17 +151,17 @@ with open('TRAtrainsTime.csv', 'w', newline='') as csvfile:
 ##########################
 #### THSR trains time ####
 ##########################
-origin = 'https://ptx.transportdata.tw/MOTC/v2/Rail/THSR/GeneralTimetable'
-select_ = "&$select=GeneralTimetable"
-with open('THSRtrainsTime.csv', 'w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(['TrainNo', 'StationID', 'DepartureHour', 'DepartureMin', 'StopSequence'])
-    url = origin + format_ + select_
-    json_data = get_json(url,driver)
-    data = json.loads(json_data)
-    for item in data:
-        for station in item['GeneralTimetable']['StopTimes']:
-            writer.writerow([int(item['GeneralTimetable']['GeneralTrainInfo']['TrainNo']), int(station['StationID']), int(station['DepartureTime'][0:2]), int(station['DepartureTime'][3:5]),station['StopSequence']])
+# origin = 'https://ptx.transportdata.tw/MOTC/v2/Rail/THSR/GeneralTimetable'
+# select_ = "&$select=GeneralTimetable"
+# with open('THSRtrainsTime.csv', 'w', newline='') as csvfile:
+#     writer = csv.writer(csvfile)
+#     writer.writerow(['TrainNo', 'StationID', 'DepartureHour', 'DepartureMin', 'StopSequence'])
+#     url = origin + format_ + select_
+#     json_data = get_json(url,driver)
+#     data = json.loads(json_data)
+#     for item in data:
+#         for station in item['GeneralTimetable']['StopTimes']:
+#             writer.writerow([int(item['GeneralTimetable']['GeneralTrainInfo']['TrainNo']), int(station['StationID']), int(station['DepartureTime'][0:2]), int(station['DepartureTime'][3:5]),station['StopSequence']])
 
 ##########################
 #### THSR trains day #####

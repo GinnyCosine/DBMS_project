@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+    <meta charset="utf-8">
+    <title>大眾運輸整合系統</title>
+    
+    <link href="{{ url_for('static', filename='css/publicTran.css')}}" rel="stylesheet" type="text/css">
+    <script src="{{ url_for('static', filename='js/publicTran.js')}}"></script>
+    
+    <!--
+    <link href='css/publicTran.css' rel="stylesheet" type="text/css"> 
+    <script src="js/publicTran.js"></script>
+    -->
+</head>
+<body>
+    <header>大眾運輸整合系統</header>
+    <div class="menu"> 
+        <ul>
+            <a href="{{ url_for('publicTran') }}"><li>一般查詢</li></a>
+            <a href="{{ url_for('myRoute') }}"><li>我的路線</li></a>
+        </ul>
+    </div>
+    <section>
+        <article>
+            <header>BUS 公車</header>
+        </article>
+        <article>
+            <header>TRA 台鐵</header>
+            <h3>起站</h3>
+            <p>縣市 (optional)<input type="text" id='tra_from_city'/></p>
+            <div class="msg" id="msg_tra_from_city"></div>
+            <p>
+                站名
+                <input type="text" id='tra_from_st'/>
+            </p>
+            <div class="msg" id="msg_tra_from_st"></div>
+            <h3>訖站</h3>
+            <p>縣市 (optional)<input type="text" id='tra_to_city'/></p>
+            <div class="msg" id="msg_tra_to_city"></div>
+            <p>
+                站名
+                <input type="text" id='tra_to_st'/>
+            </p>
+            <div class="msg" id="msg_tra_to_st"></div>
+            <h3>時間</h3>
+            <div class="time_type" id="time_type1">現在時間</div>
+            <div class="time_type" id="time_type2">自行選擇</div>
+            <div id='current_time'></div>
+            <div class="time_choice">
+                <!--<p>日期：<input type="text" id="tra_date"></p>-->
+                <select id="tra_month">
+                </select><span>月</span>
+                <select id="tra_date">
+                </select><span>日</span>
+                <br>
+                <select id="tra_am_pm">
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                </select>
+                <select id="tra_hour">
+                </select>
+                <span>:</span>
+                <select id="tra_min">
+                </select>
+            </div>
+            <br>
+            <button type="button" id="tra_query">查詢</button>
+        </article>
+        <article>
+            <header>THSR 高鐵</header>
+            <h3>起站</h3>
+            <p>縣市 (optional)<input type="text" id='thsr_from_city'/></p>
+            <div class="msg" id="msg_thsr_from_city"></div>
+            <p>
+                站名
+                <input type="text" id='thsr_from_st'/>
+            </p>
+            <div class="msg" id="msg_thsr_from_st"></div>
+            <h3>訖站</h3>
+            <p>縣市 (optional)<input type="text" id='thsr_to_city'/></p>
+            <div class="msg" id="msg_thsr_to_city"></div>
+            <p>
+                站名
+                <input type="text" id='thsr_to_st'/>
+            </p>
+            <div class="msg" id="msg_thsr_to_st"></div>
+            <h3>時間</h3>
+            <div class="time_type" id="time_type1">現在時間</div>
+            <div class="time_type" id="time_type2">自行選擇</div>
+            <div id='current_time'></div>
+            <div class="time_choice">
+                <!--<p>日期：<input type="text" id="thsr_date"></p>-->
+                <select id="thsr_month">
+                </select><span>月</span>
+                <select id="thsr_date">
+                </select><span>日</span>
+                <br>
+                <select id="thsr_am_pm">
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                </select>
+                <select id="thsr_hour">
+                </select>
+                <span>:</span>
+                <select id="thsr_min">
+                </select>
+            </div>
+            <br>
+            <button type="button" id="thsr_query">查詢</button>
+        </article>
+    </section>
+    <section>
+        <div class="tra_result">
+            <h3>查詢結果</h3>
+            <nav>
+                <span>車次</span>
+                <ul></ul>
+            </nav>
+            <nav>
+                <span>車種</span>
+                <ul></ul>
+            </nav>
+            <nav>
+                <span>出發時間</span>
+                <ul></ul>
+            </nav>
+            <nav>
+                <span>抵達時間</span>
+                <ul></ul>
+            </nav>
+            <nav>
+                <span>時長</span>
+                <ul></ul>
+            </nav>
+        </div>
+        <div class="thsr_result">
+            <h3>查詢結果</h3>
+            <nav>
+                <span>車次</span>
+                <ul></ul>
+            </nav>
+            <nav>
+                <span>出發時間</span>
+                <ul></ul>
+            </nav>
+            <nav>
+                <span>抵達時間</span>
+                <ul></ul>
+            </nav>
+        </div>
+    </section>
+</body>
+</html>

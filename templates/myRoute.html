@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="{{ url_for('static', filename='css/myRoute.css')}}" rel="stylesheet" type="text/css">
+        <script src="{{ url_for('static', filename='js/myRoute.js')}}"></script>
+        
+    </head>
+    <body>
+        <header>大眾運輸整合系統</header>
+        <nav>
+            <ul>
+                <a href="{{ url_for('publicTran') }}"><li>一般查詢</li></a>
+                <a href="{{ url_for('myRoute') }}"><li>我的路線</li></a>
+            </ul>
+        </nav>
+    </body>
+</html>

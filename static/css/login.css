@@ -2,19 +2,35 @@
 
 body{
     font-family: 'Baloo 2', cursive;
+    font-size: 18px;
 }
 
 .loginType{
     width: fit-content;
     padding: 5px;
-    background: rgb(255, 219, 60);
-    border: solid 1px rgb(85, 69, 55);
+    background: #dacdb6;
     text-align: center;
     display: inline-block;
 }
 
 .loginType:hover{
-    background: rgb(97, 228, 233);
+    background: #ffd270 !important;
     cursor: pointer;
-    transition: 1s ease;
+    transition: 0.5s ease;
+}
+
+.msg{
+    font-size: 13px;
+    display: block;
+}
+
+section{
+    position: absolute;
+    width: fit-content;
+    height: 500px;
+    left: 50%;
+    top: 50%;
+    -ms-transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
 }
