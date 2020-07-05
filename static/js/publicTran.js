@@ -24,30 +24,34 @@ $(document).ready(function(){
     };
     tra_toStation = [];
     tra_fromStation = [];
-
+    time_choice = 0;
 
     // time choice
     $('.time_choice').hide();
     $('#time_type1').click(function(){
-        time = today.getMonth()+1+'月'+today.getDate()+'日 ';
-        h = today.getHours();
-        m = today.getMinutes();
-        if (m < 10)
-            m = '0'+m;
-        tmp = get12Time(h);
-        time+=tmp['ampm']+' '+tmp['hour']+':'+m;
+        cur_month = today.getMonth() + 1;
+        cur_date = today.getDate();
+        time = cur_month + '月' + cur_date +'日 ';
+        cur_h = today.getHours();
+        cur_m = today.getMinutes();
+        if (cur_m < 10)
+            cur_m = '0'+cur_m;
+        tmp = get12Time(cur_h);
+        time+=tmp['ampm']+' '+tmp['hour']+':'+cur_m;
         
         document.getElementById('current_time').innerHTML = time;
         $('#current_time').show();
         $('.time_choice').hide();
         $('#time_type1').css('background','rgb(255, 210, 112)');
         $('#time_type2').css('background','#dacdb6');
+        time_choice = 1;
     });
     $('#time_type2').click(function(){
         $('.time_choice').show();
         $('#current_time').hide();
         $('#time_type2').css('background','rgb(255, 210, 112)');
         $('#time_type1').css('background','#dacdb6');
+        time_choice = 2;
     });
 
     // choose today
@@ -426,8 +430,17 @@ $(document).ready(function(){
      *** 查詢 
     */
     $("#tra_query").click(function(){
-        var from_city = document.getElementById("tra_from_city").value;
+        if (time_choice == 0){
+            alert('請選擇時間');
+            return; 
+        }
         var from_st = document.getElementById("tra_from_st").value;
+        var to_st = document.getElementById("tra_to_st").value;
+        if (from_st.length == 0 || to_st.length == 0) {
+            alert('請輸入車站名');
+            return;
+        }
+        var from_city = document.getElementById("tra_from_city").value;
         if (tra_fromStation.length > 0){
             var flag = 0;
             tra_fromStation = getRailwayStationsFromCity(from_city, "TRA");
@@ -443,7 +456,6 @@ $(document).ready(function(){
             }
         }
         var to_city = document.getElementById("tra_from_city").value;
-        var to_st = document.getElementById("tra_to_st").value;
         if (tra_toStation.length > 0){
             var flag = 0;
             tra_toStation = getRailwayStationsFromCity(to_city, "TRA");
@@ -458,12 +470,19 @@ $(document).ready(function(){
                 return;
             }
         }
-        var ampm = document.getElementById("tra_am_pm").value;
-        var hour = document.getElementById("tra_hour").value;
-        var min = document.getElementById("tra_min").value;
-        var month = document.getElementById("tra_month").value;
-        var date = document.getElementById("tra_date").value;
-        var date = document.getElementById("tra_date").value;
+        if (time_choice == 2) {
+            var hour = get24Time(document.getElementById("tra_hour").value,document.getElementById("tra_am_pm").value);
+            var min = document.getElementById("tra_min").value;
+            var month = document.getElementById("tra_month").value;
+            var date = document.getElementById("tra_date").value;
+        }
+        else {
+            var hour = cur_h;
+            var min = cur_m;
+            var month = cur_month;
+            var date = cur_date;
+        }
+        console.log(hour);
         getRailwayResult(from_st, to_st, month, date, hour, min, "TRA");
     });
 
@@ -487,7 +506,6 @@ function addOptions(target, startNum, endNum, op){
 function get12Time(h){
     var ampm;
     var hour;
-    var min;
     if (h > 11)
         ampm = "PM";
     else
@@ -502,6 +520,27 @@ function get12Time(h){
         hour = h;
     }
     return {'ampm':ampm,'hour':hour};
+}
+
+function get24Time(h, ampm){
+    var return_h;
+    if (ampm == "AM"){
+        if (h == 12){
+            return_h = 0;
+        }
+        else {
+            return_h = h;
+        }
+    }
+    else {
+        if (h == 12) {
+            return_h = 12;
+        }
+        else {
+            return_h = h + 12;
+        }
+    }
+    return return_h;
 }
 
 function getRailwayStationsFromCity(city, type){
