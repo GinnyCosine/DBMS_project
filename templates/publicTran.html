@@ -15,6 +15,7 @@
     -->
 </head>
 <body>
+
     <header>大眾運輸整合系統</header>
     <div class="menu"> 
         <ul>
@@ -25,6 +26,16 @@
     <section>
         <article>
             <header>BUS 公車</header>
+            <h3>路線</h3>
+            <p>縣市 (optional)<input type="text" id='bus_city'/></p>
+            <div class="msg" id="msg_bus_city"></div>
+            <p>名稱<input type="text" id='bus_route'/></p>
+            <div class="msg" id="msg_bus_route"></div>
+            <h3>時間</h3>
+            <div class="time_type" id="bus_time_type1">現在時間</div>
+            <div class='current_time'></div>
+            <div class="time_choice"></div>
+            <button type="button" id="bus_query">查詢</button>
         </article>
         <article>
             <header>TRA 台鐵</header>
@@ -45,9 +56,9 @@
             </p>
             <div class="msg" id="msg_tra_to_st"></div>
             <h3>時間</h3>
-            <div class="time_type" id="time_type1">現在時間</div>
-            <div class="time_type" id="time_type2">自行選擇</div>
-            <div id='current_time'></div>
+            <div class="time_type" id="tra_time_type1">現在時間</div>
+            <div class="time_type" id="tra_time_type2">自行選擇</div>
+            <div class='current_time'></div>
             <div class="time_choice">
                 <!--<p>日期：<input type="text" id="tra_date"></p>-->
                 <select id="tra_month">
@@ -87,9 +98,9 @@
             </p>
             <div class="msg" id="msg_thsr_to_st"></div>
             <h3>時間</h3>
-            <div class="time_type" id="time_type1">現在時間</div>
-            <div class="time_type" id="time_type2">自行選擇</div>
-            <div id='current_time'></div>
+            <div class="time_type" id="thsr_time_type1">現在時間</div>
+            <div class="time_type" id="thsr_time_type2">自行選擇</div>
+            <div class='current_time'></div>
             <div class="time_choice">
                 <!--<p>日期：<input type="text" id="thsr_date"></p>-->
                 <select id="thsr_month">
@@ -111,9 +122,15 @@
             <button type="button" id="thsr_query">查詢</button>
         </article>
     </section>
-    <section>
-        <div class="tra_result">
-            <h3>查詢結果</h3>
+    <section class="results">
+        <h3>查詢結果</h3>
+        <h3>查詢結果</h3>
+        <h3>查詢結果</h3>
+    </section>
+    <section class='results'>
+        <div class="result">
+        </div>
+        <div class="result" id='tra_result'>
             <nav>
                 <span>車次</span>
                 <ul></ul>
@@ -135,8 +152,7 @@
                 <ul></ul>
             </nav>
         </div>
-        <div class="thsr_result">
-            <h3>查詢結果</h3>
+        <div class="result" id="thsr_result">
             <nav>
                 <span>車次</span>
                 <ul></ul>

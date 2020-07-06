@@ -102,7 +102,7 @@ create table UserInfo(
 );
 
 create table Cities(
-    cityCode varchar(20) not NULL,
-    cityName varchar(20) not NULL,
-    primary key(cityName)
+    cityEn varchar(20) not NULL,
+    cityZh varchar(20) not NULL,
+    primary key(cityEn)
 );

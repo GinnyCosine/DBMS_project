@@ -101,3 +101,62 @@ article{
     padding: 0;
 }
 
+.result{
+    -webkit-flex: 1;
+	-ms-flex: 1;
+    flex: 1;
+    position: relative;
+    width: 100%;
+    display: flex;
+    display: -webkit-flex;
+}
+
+.results h3{
+    font-weight: normal;
+    font-size: 18px;
+    text-align: center;
+    -webkit-flex: 1;
+	-ms-flex: 1;
+    flex: 1;
+    width: 100%;
+}
+
+.result nav{
+    -webkit-flex: 1;
+	-ms-flex: 1;
+    flex: 1;
+    text-align: center;
+}
+
+.result nav span{
+    padding: 0 4px;
+    border-radius: 6px;
+    background: #dad0c6;
+}
+
+.result nav ul{
+    list-style: none;
+    text-align: center;
+    padding: 0;
+}
+
+.result nav ul li:nth-child(2n+1){
+    background: #fff3d8;
+}
+
+article:nth-child(1) p, article:nth-child(1) h3{
+    padding: 0 0 0 10px;
+}
+
+article:nth-child(1) div{
+    -ms-transform: translate(10px, 0);
+    -webkit-transform: translate(10px, 0);
+    transform: translate(10px, 0);
+}
+
+#msg_bus_route .submsg{
+    -ms-transform: translate(2px, 0);
+    -webkit-transform: translate(2px, 0);
+    transform: translate(2px, 0);
+    display: none;
+}

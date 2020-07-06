@@ -19,7 +19,7 @@ Week = ['Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 # create an app instance
 app = Flask(__name__)
 
-user = 'none'
+user = '###'
 
 # at the end point / 根目錄
 @app.route("/")
@@ -56,6 +56,22 @@ def create_user():
     mycursor.execute('INSERT INTO UserInfo (user, pwd) VALUES ("' + user + '","'+ pwd +'")')
     connection.commit()
     return jsonify({'status':'ok'})   # user exists
+
+# get station options from city
+@app.route("/busRouteFromCity", methods = ['POST'])
+def busRouteFromCity():
+    city = request.json['city']
+    mycursor.execute('SELECT cityEn FROM Cities WHERE cityZh = "' + city + '"')
+    result = mycursor.fetchall()
+    if (len(result) == 0):
+        return
+    cityEn = result[0][0]
+    mycursor.execute('SELECT RouteName FROM busRoute WHERE City = "' + cityEn + '" ORDER BY RouteName')
+    result = mycursor.fetchall()
+    routes = []
+    for route in result:
+        routes.append({'route':route[0]})
+    return jsonify({'routes':routes})
 
 # get station options from city
 @app.route("/stationsFromCity/<trType>", methods = ['POST'])
@@ -98,52 +114,74 @@ def RailwayResult(trType):
     if (len(result) == 0):
         return jsonify({'status':1})
     to_stationID = result[0][0]
-    week = Week[datetime.strptime("2020" + month + date, "%Y%m%d").weekday()]
+    week = Week[datetime.strptime("2020" + str(month) + str(date), "%Y%m%d").weekday()]
     if trType == "TRA":
-        query = 'SELECT from_time.TrainNo AS TrainNo, from_time.ArrivalHour AS ArrivalHour, from_time.ArrivalMin AS ArrivalMin, to_time.DepartureHour AS DepartureHour, to_time.DepartureMin AS DepartureMin, TRAtrainsInfo.TripLine AS TripLine, TRAtrainsInfo.TrainTypeName AS TrainTypeName \
+        query = 'SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.ArrivalHour AS ArrivalHour, to_time.ArrivalMin AS ArrivalMin, TRAtrainsInfo.TripLine AS TripLine, TRAtrainsInfo.TrainTypeName AS TrainTypeName \
             FROM (SELECT TrainNo, ArrivalHour, ArrivalMin, StopSequence \
-            FROM TRAtrainsTime WHERE StationID = ' + str(from_stationID) + ' AND \
-            ArrivalHour >= ' + str(h) + ' AND ArrivalMin >= ' + str(m) + ') AS from_time, \
+            FROM TRAtrainsTime WHERE StationID = ' + str(to_stationID) + ' AND \
+            (ArrivalHour > ' + str(h) + ' OR (ArrivalHour = '+ str(h) + ' AND ArrivalMin >= ' + str(m) + '))) AS to_time, \
             (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence FROM TRAtrainsTime \
-            WHERE StationID = ' + str(to_stationID) + ' AND DepartureHour >= ' + str(h) + ' AND \
-            DepartureMin >= ' + str(m) + ') AS to_time, TRAtrainsDay, TRAtrainsInfo WHERE from_time.TrainNo = to_time.TrainNo AND TRAtrainsDay.TrainNo = from_time.TrainNo AND TRAtrainsInfo.TrainNo = from_time.TrainNo AND from_time.StopSequence < to_time.StopSequence AND TRAtrainsDay.' + week + ' = 1 \
-            ORDER BY from_time.ArrivalHour, from_time.ArrivalMin'
+            WHERE StationID = ' + str(from_stationID) + ' AND (DepartureHour > ' + str(h) + ' OR (DepartureHour = '+ str(h) + ' AND DepartureMin >= ' + str(m) + '))) AS from_time, TRAtrainsDay, TRAtrainsInfo \
+                WHERE from_time.TrainNo = to_time.TrainNo AND TRAtrainsDay.TrainNo = from_time.TrainNo AND TRAtrainsInfo.TrainNo = from_time.TrainNo AND from_time.StopSequence < to_time.StopSequence AND TRAtrainsDay.' + week + ' = 1 \
+            ORDER BY from_time.DepartureHour, from_time.DepartureMin'
     else:
-         query = 'SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.DepartureHour AS DepartureHour, to_time.DepartureMin AS DepartureMin, THSRtrainsInfo.TripLine AS TripLine, THSRtrainsInfo.TrainTypeName AS TrainTypeName \
+         query = 'SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.DepartureHour AS ArrivalHour, to_time.DepartureMin AS ArrivalMin \
             FROM (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence \
             FROM THSRtrainsTime WHERE StationID = ' + str(from_stationID) + ' AND \
-            DepartureHour >= ' + str(h) + ' AND DepartureMin >= ' + str(m) + ') AS from_time, \
+            (DepartureHour > ' + str(h) + ' OR (DepartureHour = '+ str(h) + ' AND DepartureMin >= ' + str(m) + '))) AS from_time, \
             (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence FROM THSRtrainsTime \
-            WHERE StationID = ' + str(to_stationID) + ' AND DepartureHour >= ' + str(h) + ' AND \
-            DepartureMin >= ' + str(m) + ') AS to_time, THSRtrainsDay WHERE from_time.TrainNo = to_time.TrainNo AND THSRtrainsDay.TrainNo = from_time.TrainNo AND from_time.StopSequence < to_time.StopSequence AND THSRtrainsDay.' + week + ' = 1 \
+            WHERE StationID = ' + str(to_stationID) + ' AND (DepartureHour > ' + str(h) + ' OR (DepartureHour = '+ str(h) + ' AND DepartureMin >= ' + str(m) + '))) AS to_time, THSRtrainsDay WHERE from_time.TrainNo = to_time.TrainNo AND THSRtrainsDay.TrainNo = from_time.TrainNo AND from_time.StopSequence < to_time.StopSequence AND THSRtrainsDay.' + week + ' = 1 \
             ORDER BY from_time.DepartureHour, from_time.DepartureMin'
     mycursor.execute(query)
     result = mycursor.fetchall()
+    print(query)
     if (len(result) == 0):
         return jsonify({'status':2})
     trains = []
     if trType == "TRA":
         for item in result:
             if (item[2] < 10):
-                item[2] = '0' + item[2]
+                dm = '0' + str(item[2])
+            else:
+                dm = str(item[2])
             if (item[4] < 10):
-                item[4] = '0' + item[4]
+                am = '0' + str(item[4])
+            else:
+                am = str(item[4])
+            mins = int(item[4]) - int(item[2])
+            hours = int(item[3]) - int(item[1])
+            if (mins < 0):
+                mins += 60
+                hours -= 1
+            if (hours != 0):
+                dur = str(hours)+'時'+str(mins)+'分'
+            else:
+                dur = str(mins)+'分'
             inside = {
                 'TrainNo':item[0],
-                'ArrivalTime':item[1]+':'+item[2],
-                'DepartureTime':item[3]+':'+item[4],
+                'DepartureTime':str(item[1])+':'+dm,
+                'ArrivalTime':str(item[3])+':'+am,
                 'TripLine':item[5],
                 'TrainTypeName':item[6],
+                'Duration': dur
             }
             trains.append(inside)
     else:
         for item in result:
             if (item[2] < 10):
-                item[2] = '0' + item[2]
+                dm = '0' + str(item[2])
+            else:
+                dm = str(item[2])
+            if (item[4] < 10):
+                am = '0' + str(item[4])
+            else:
+                am = str(item[4])
             inside = {
                 'TrainNo':item[0],
-                'DepartureTime':item[1]+':'+item[2],
+                'DepartureTime':str(item[1])+':'+dm,
+                'ArrivalTime':str(item[3])+':'+am
             }
+            trains.append(inside)
     return jsonify({'trains':trains,'status':3})
 
 if __name__ == "__main__":        # on running python app.py
