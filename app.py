@@ -13,6 +13,40 @@ connection = mysql.connector.connect(
 )
 mycursor = connection.cursor()
 
+# Authorization
+from hashlib import sha1
+import hmac
+from wsgiref.handlers import format_date_time
+from time import mktime
+import base64
+import requests
+from pprint import pprint
+
+app_id = '27fc8c10e9024b07ad6c724a4a2bc9f8'
+app_key = 'YciHt1dDF6nEW0_XL1K89EYVZ9U'
+
+class Auth():
+
+    def __init__(self, app_id, app_key):
+        self.app_id = app_id
+        self.app_key = app_key
+
+    def get_auth_header(self):
+        xdate = format_date_time(mktime(datetime.now().timetuple()))
+        hashed = hmac.new(self.app_key.encode('utf8'), ('x-date: ' + xdate).encode('utf8'), sha1)
+        signature = base64.b64encode(hashed.digest()).decode()
+
+        authorization = 'hmac username="' + self.app_id + '", ' + \
+                        'algorithm="hmac-sha1", ' + \
+                        'headers="x-date", ' + \
+                        'signature="' + signature + '"'
+        return {
+            'Authorization': authorization,
+            'x-date': format_date_time(mktime(datetime.now().timetuple())),
+            'Accept - Encoding': 'gzip'
+        }
+
+
 # Initial set
 Week = ['Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -57,7 +91,7 @@ def create_user():
     connection.commit()
     return jsonify({'status':'ok'})   # user exists
 
-# get station options from city
+# get bus route options from city
 @app.route("/busRouteFromCity", methods = ['POST'])
 def busRouteFromCity():
     city = request.json['city']
@@ -94,6 +128,26 @@ def stationsFromKeyin(trType):
     for st in result:
         stations.append({'stationName':st[0]})
     return jsonify({'stations':stations})
+
+##### 寫到這
+# get bus route result
+@app.route("/BusResult", methods = ['POST'])
+def BusResult():
+    city = request.json['city']
+    routeName = request.json['routeName']
+    mycursor.execute('SELECT cityEn FROM Cities WHERE cityZh = "' + city + '"')
+    result = mycursor.fetchall()
+    if (len(result) == 0):
+        return jsonify({'status':1})
+    cityEn = result[0][0]
+    mycursor.execute('SELECT RouteID FROM busRoute WHERE RouteName = "' + routeName + '"')
+    result = mycursor.fetchall()
+    RouteID = result[0][0]
+    a = Auth(app_id, app_key)
+    response = requests.get("https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/"+cityEn+"/1?$format=JSON&$filter=RouteName/Zh_tw eq '"+routeName+"'", headers= a.get_auth_header())
+    #data = json.loads(response)
+    pprint(response.text)
+    return jsonify({'status':3})
 
 #　Railway query
 @app.route("/RailwayResult/<trType>", methods = ['POST'])

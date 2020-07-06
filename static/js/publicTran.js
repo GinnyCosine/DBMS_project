@@ -705,6 +705,11 @@ $(document).ready(function(){
     });
 
     $("#bus_query").click(function(){
+        var hour = cur_h;
+        var min = cur_m;
+        var city = document.getElementById('bus_city').value;
+        var routeName = document.getElementById('bus_route').value;
+        var result = getBusResult(routeName, city, hour, min);
         
     })
 });
@@ -822,6 +827,30 @@ function getRailwayStationsFromKeyin(keyin, type){
         }
     });
     return stations;
+}
+
+function getBusResult(routeName, city, hour, min){
+    var req_url = "http://127.0.0.1:5000/BusResult";
+    var result;
+    var dataJSON = {
+        "routeName":routeName,
+        "city":city,
+        "month":month,
+        "hour":hour,
+        "min":min
+    };
+    $.ajax({ 
+        url:req_url, 
+        type: "POST", 
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify(dataJSON),
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    return result;
 }
 
 function getRailwayResult(from_station, to_station, month, date, hour, min, type){
