@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <script type="text/javascript" src="https://code.jquery.com/jquery-latest.min.js"></script>
+    
         <link href="{{ url_for('static', filename='css/myRoute.css')}}" rel="stylesheet" type="text/css">
         <script src="{{ url_for('static', filename='js/myRoute.js')}}"></script>
         
     </head>
     <body>
+        <div class="user">
+            <span id='user_name'></span>
+            <button type="button" id="login">LOGIN</button>
+        </div>
         <header>大眾運輸整合系統</header>
         <div class="menu"> 
             <ul>
@@ -13,11 +19,59 @@
                 <a href="{{ url_for('myRoute') }}"><li>我的路線</li></a>
             </ul>
         </div>
-        <section>
-            <header>最近搜尋</header>
+        <h2 id="myRoute">我的路線</h2>
+        <section id="routes">
+            <div id="inform"></div>
         </section>
-        <section>
-            <header>我的路線</header>
+        <button type="button" id="add_button">新增路線</button>
+        <section id='add'>
+            <article>
+                <h2>TRA</h2>
+                <h3>起站</h3>
+                <p>縣市 (optional)<input type="text" id='tra_from_city' autocomplete="off"/></p>
+                <div class="msg" id="msg_tra_from_city"></div>
+                <p>
+                    站名
+                    <input type="text" id='tra_from_st' autocomplete="off"/>
+                </p>
+                <div class="msg" id="msg_tra_from_st"></div>
+                <h3>訖站</h3>
+                <p>縣市 (optional)<input type="text" id='tra_to_city' autocomplete="off"/></p>
+                <div class="msg" id="msg_tra_to_city"></div>
+                <p>
+                    站名
+                    <input type="text" id='tra_to_st' autocomplete="off"/>
+                </p>
+                <div class="msg" id="msg_tra_to_st"></div>
+                <button type="button" id="tra_add">新增</button>
+            </article>
+            <article>
+                <h2>THSR</h2>
+                <h3>起站</h3>
+                <p>縣市 (optional)<input type="text" id='thsr_from_city' autocomplete="off"/></p>
+                <div class="msg" id="msg_thsr_from_city"></div>
+                <p>
+                    站名
+                    <input type="text" id='thsr_from_st' autocomplete="off"/>
+                </p>
+                <div class="msg" id="msg_thsr_from_st"></div>
+                <h3>訖站</h3>
+                <p>縣市 (optional)<input type="text" id='thsr_to_city' autocomplete="off"/></p>
+                <div class="msg" id="msg_thsr_to_city"></div>
+                <p>
+                    站名
+                    <input type="text" id='thsr_to_st' autocomplete="off"/>
+                </p>
+                <div class="msg" id="msg_thsr_to_st"></div>
+                <button type="button" id="thsr_add">新增</button>
+            </article>
+            <article id="subroutes">
+                <!-- <div class="subroute">
+                    <span></span>
+                    <button type="button" class="delete_subroute">刪除</button>
+                </div> -->
+                <button type="button" id="confirm">確定新增</button>
+            </article>
         </section>
     </body>
 </html>

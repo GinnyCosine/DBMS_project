@@ -12,9 +12,8 @@ header{
     width: 100%;
     font-size: 20px;
     text-align: center;
-    padding: 5px;
+    padding: 10px 0;
 }
-
 /* menu */
 .menu{
     position: sticky;
@@ -30,6 +29,8 @@ header{
 .menu ul{
     list-style: none;
     height: 42px;
+    margin: 0;
+    padding: 0;
 }
 
 a{
@@ -48,4 +49,90 @@ a{
 .menu ul li:hover{
     background: rgb(45, 121, 131) !important;
     color: #fff  !important;
+}
+
+.user{
+    width: fit-content;
+    text-align: right;
+    position: absolute;
+    top:5px;
+    right: 15px;
+    z-index: 1000;
+}
+
+.user span{
+    padding: 3px 5px;
+}
+
+section{
+    width: 100%;
+    box-sizing: border-box;
+}
+
+section header{
+    text-align: left;
+    padding: 10px 30px;
+}
+
+#myRoute{
+    padding: 2px;
+    width: fit-content;
+    -ms-transform: translate(60px, 0);
+    -webkit-transform: translate(60px, 0);
+    transform: translate(60px, 0);
+    font-weight: normal;
+}
+
+#inform{
+    width: fit-content;
+    -ms-transform: translate(60px, 0);
+    -webkit-transform: translate(60px, 0);
+    transform: translate(60px, 0);
+}
+
+#add article{
+    padding: 5px 10px 5px 60px;
+    position: relative;
+    float: left;
+    width: 27%;
+}
+
+#add{
+    display: none;
+}
+
+#add_button{
+    font-family: 'Noto Sans TC', sans-serif !important;
+    padding: 5px;
+    font-size: 15px;
+    -ms-transform: translate(60px, 0);
+    -webkit-transform: translate(60px, 0);
+    transform: translate(60px, 0);
+}
+
+#add button{
+    -ms-transform: none;
+    -webkit-transform: none;
+    transform: none;
+    padding: 2px 5px;
+}
+
+button{
+    font-family: 'Noto Sans TC', sans-serif !important;
+
+}
+
+.submsg{
+    width: fit-content;
+    height: fit-content;
+    background: #dacdb6;
+    display: inline-block;
+    padding: 2px;
+    margin: 2px;
+    /*border: solid 1px black;*/
+}
+
+.submsg:hover{
+    cursor: pointer;
+    background: #ffd270 !important;
 }

@@ -142,7 +142,6 @@ def stationsFromKeyin(trType):
         stations.append({'stationName':st[0]})
     return jsonify({'stations':stations})
 
-##### 寫到這
 # get bus route result
 @app.route("/BusResult", methods = ['POST'])
 def BusResult():
@@ -447,6 +446,36 @@ def getSearchRecord(trType, target):
         for rec in result:
             records.append({"target":rec[0]})
     return jsonify({'records':records})
+
+@app.route("/serchRailway/<trType>", methods = ['POST'])
+def serchRailway(trType):
+    mycursor.execute('SELECT StationID FROM ' + trType + 'stations WHERE StationName = "' + request.json['station'] + '"')
+    result = mycursor.fetchall()
+    if len(result) == 0:
+        return jsonify({'status':1})
+    else:
+        return jsonify({'status':2})
+
+##### here !!!
+@app.route("/addMyRoute", methods = ['POST'])
+def addMyRoute():
+    mycursor.execute('SELECT COUNT(ID) FROM UserMyRoute WHERE user = "' + user_ + '"')
+    result = mycursor.fetchall()
+    ID = int(result[0][0]) + 1
+    seq = 1
+    for each in request.json['routes']:
+        trType = each['type']
+        mycursor.execute('SELECT StationID FROM '+trType+'stations WHERE StationName = "' + each['from'] + '"')
+        result = mycursor.fetchall()
+        fromID = result[0][0]
+        mycursor.execute('SELECT StationID FROM '+trType+'stations WHERE StationName = "' + each['to'] + '"')
+        result = mycursor.fetchall()
+        toID = result[0][0]
+        mycursor.execute('INSERT INTO UserMyRoute (user, ID, sequence, type, fromID ,toID) VALUES ("' \
+        + user_ + '","'+ ID +'","'+seq+'","'+trType+'","'+fromID+'","'+toID+'")')
+        connection.commit()
+        seq += 1
+    return jsonify({'status':2})
 
 if __name__ == "__main__":        # on running python app.py
 
