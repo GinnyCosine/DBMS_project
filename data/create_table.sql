@@ -106,3 +106,41 @@ create table Cities(
     cityZh varchar(20) not NULL,
     primary key(cityEn)
 );
+
+create table UserBusRecord(
+    user varchar(20) not NULL,
+    RouteName varchar(60) not NULL,
+    City varchar(20) not NULL,
+    searchTime TIMESTAMP ,
+    primary key(user,searchTime)
+);
+
+create table UserTRArecord(
+    user varchar(20) not NULL,
+    fromStationName varchar(20) not NULL,
+    fromCity varchar(20) not NULL,
+    toStationName varchar(20) not NULL,
+    toCity varchar(20) not NULL,
+    searchTime TIMESTAMP ,
+    primary key(user,searchTime)
+);
+
+create table UserTHSRrecord(
+    user varchar(20) not NULL,
+    fromStationName varchar(20) not NULL,
+    fromCity varchar(20) not NULL,
+    toStationName varchar(20) not NULL,
+    toCity varchar(20) not NULL,
+    searchTime TIMESTAMP ,
+    primary key(user,searchTime)
+);
+
+create table UserMyRoute(
+    user varchar(20) not NULL,
+    ID int not NULL,
+    sequence int not NULL,
+    type varchar(20) not NULL ,
+    fromID int not NULL,
+    toID int not NULL,
+    primary key(user,ID,sequence)
+);

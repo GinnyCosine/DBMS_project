@@ -323,7 +323,6 @@ def RailwayResult(trType):
             ORDER BY from_time.DepartureHour, from_time.DepartureMin'
     mycursor.execute(query)
     result = mycursor.fetchall()
-    print(query)
     if (len(result) == 0):
         return jsonify({'status':2})
     trains = []
@@ -372,6 +371,82 @@ def RailwayResult(trType):
             }
             trains.append(inside)
     return jsonify({'trains':trains,'status':3})
+
+@app.route("/updateRailwaySearchRecord/<trType>", methods = ['POST'])
+def updateRailwaySearchRecord(trType):
+    mycursor.execute('SELECT COUNT(*) FROM User'+trType+'record WHERE user = "'+user_+'"')
+    result = mycursor.fetchall()
+    total = result[0][0]
+    mycursor.execute('SELECT City FROM '+trType+'stations WHERE StationName = "'+request.json['from_station']+'"')
+    result = mycursor.fetchall()
+    from_city = result[0][0]
+    mycursor.execute('SELECT City FROM '+trType+'stations WHERE StationName = "'+request.json['to_station']+'"')
+    result = mycursor.fetchall()
+    to_city = result[0][0]
+    cur = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if total < 5:
+        mycursor.execute('INSERT INTO User'+trType+'record (user, fromStationName, fromCity, toStationName, toCity, searchTime) VALUES ("' \
+        + user_ + '","'+ request.json['from_station'] +'","'+from_city+'","'+request.json['to_station']+'","'+to_city+'","'+cur+'")')
+        connection.commit()
+        return jsonify({'status':1})
+    else:
+        mycursor.execute('SELECT MIN(searchTime) FROM User'+trType+'record WHERE user = "'+user_+'"')
+        result = mycursor.fetchall()
+        min_time = result[0][0]
+        mycursor.execute('DELETE FROM User'+trType+'record WHERE searchTime = "'+str(min_time)+'" AND user = "'+user_+'"')
+        connection.commit()
+        mycursor.execute('INSERT INTO User'+trType+'record (user, fromStationName, fromCity, toStationName, toCity, searchTime) VALUES ("' \
+        + user_ + '","'+ request.json['from_station'] +'","'+from_city+'","'+request.json['to_station']+'","'+to_city+'","'+cur+'")')
+        connection.commit()
+        return jsonify({'status':2})
+
+@app.route("/updateBusSearchRecord", methods = ['POST'])
+def updateBusSearchRecord():
+    mycursor.execute('SELECT COUNT(*) FROM UserBusRecord WHERE user = "'+user_+'"')
+    result = mycursor.fetchall()
+    total = result[0][0]
+    cur = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    if total < 5:
+        mycursor.execute('INSERT INTO UserBusRecord (user, RouteName, City, searchTime) VALUES ("' \
+        + user_ + '","'+ request.json['route'] +'","'+request.json['city']+'","'+cur+'")')
+        connection.commit()
+        return jsonify({'status':1})
+    else:
+        mycursor.execute('SELECT MIN(searchTime) FROM UserBusRecord WHERE user = "'+user_+'"')
+        result = mycursor.fetchall()
+        min_time = result[0][0]
+        mycursor.execute('DELETE FROM UserBusRecord WHERE searchTime = "'+str(min_time)+'" AND user = "'+user_+'"')
+        connection.commit()
+        mycursor.execute('INSERT INTO UserBusRecord (user, RouteName, City, searchTime) VALUES ("' \
+        + user_ + '","'+ request.json['route'] +'","'+request.json['city']+'","'+cur+'")')
+        connection.commit()
+        return jsonify({'status':2})
+
+@app.route("/getSearchRecord/<trType>/<target>", methods = ['GET'])
+def getSearchRecord(trType, target):
+    if trType == "Bus":
+        # mycursor.execute('SELECT RouteName, City FROM UserBusRecord WHERE user = "'+user_+'"')
+        print('SELECT DISTINCT('+target+') FROM UserBusRecord WHERE user = "'+user_+'"')
+        mycursor.execute('SELECT DISTINCT('+target+') FROM UserBusRecord WHERE user = "'+user_+'"')
+        result = mycursor.fetchall()
+        records = []
+        for rec in result:
+            records.append({"target":rec[0]})
+    elif trType == "TRA":
+        # mycursor.execute('SELECT fromStationName, fromCity, toStationName, toCity FROM UserTRArecord WHERE user = "'+user_+'"')
+        mycursor.execute('SELECT DISTINCT('+target+') FROM UserTRArecord WHERE user = "'+user_+'"')
+        result = mycursor.fetchall()
+        records = []
+        for rec in result:
+            records.append({"target":rec[0]})
+    else:
+        # mycursor.execute('SELECT fromStationName, fromCity, toStationName, toCity FROM UserTHSRrecord WHERE user = "'+user_+'"')
+        mycursor.execute('SELECT DISTINCT('+target+') FROM UserTHSRrecord WHERE user = "'+user_+'"')
+        result = mycursor.fetchall()
+        records = []
+        for rec in result:
+            records.append({"target":rec[0]})
+    return jsonify({'records':records})
 
 if __name__ == "__main__":        # on running python app.py
 
