@@ -53,7 +53,7 @@ Week = ['Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 # create an app instance
 app = Flask(__name__)
 
-user = '###'
+user_ = '###'
 
 # at the end point / 根目錄
 @app.route("/")
@@ -69,14 +69,27 @@ def myRoute():
     return render_template('myRoute.html')
 
 # request pwd of user
-@app.route("/login/<user>", methods = ['GET'])
-def get_user_pwd(user):
+@app.route("/login", methods = ['POST'])
+def user_login():
+    user = request.json['user']
+    pwd = request.json['pwd']
     mycursor.execute('SELECT pwd FROM UserInfo WHERE user = "' + user + '"')
     result = mycursor.fetchall()
     if len(result) == 0:
-        return jsonify({'pwd':'###'})   # user not exists
+        return jsonify({'status':1})   # user not exists
+    elif result[0][0] != pwd:
+        return jsonify({'status':2})   # wrong password
     else:
-        return jsonify({'pwd': result[0][0]})
+        global user_
+        user_= user
+        return jsonify({'status':3})   # success
+
+@app.route("/user_name", methods = ['GET'])
+def user_name():
+    if user_ == '###':
+        return jsonify({'status':1, 'userName':'GUEST'})
+    else:
+        return jsonify({'status':2, 'userName':user_})
 
 # create user
 @app.route("/create_user", methods = ['POST'])
@@ -89,7 +102,7 @@ def create_user():
     pwd = request.json['pwd']
     mycursor.execute('INSERT INTO UserInfo (user, pwd) VALUES ("' + user + '","'+ pwd +'")')
     connection.commit()
-    return jsonify({'status':'ok'})   # user exists
+    return jsonify({'status':'ok'})   # success
 
 # get bus route options from city
 @app.route("/busRouteFromCity", methods = ['POST'])
@@ -140,14 +153,136 @@ def BusResult():
     if (len(result) == 0):
         return jsonify({'status':1})
     cityEn = result[0][0]
-    mycursor.execute('SELECT RouteID FROM busRoute WHERE RouteName = "' + routeName + '"')
+    mycursor.execute('SELECT RouteID, DepartureStopName, DestinationStopName FROM busRoute WHERE City = "' + cityEn + '" AND RouteName = "' + routeName + '"')
     result = mycursor.fetchall()
+    if (len(result) == 0):
+        return jsonify({'status':2})
     RouteID = result[0][0]
+    DepartureStopName =  result[0][1]
+    DestinationStopName =  result[0][2]
+    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 0 AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
+    dir0 = mycursor.fetchall()
+    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 1 AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
+    dir1 = mycursor.fetchall()
+    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 2 AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
+    dir2 = mycursor.fetchall()
     a = Auth(app_id, app_key)
     response = requests.get("https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/"+cityEn+"/1?$format=JSON&$filter=RouteName/Zh_tw eq '"+routeName+"'", headers= a.get_auth_header())
-    #data = json.loads(response)
-    pprint(response.text)
-    return jsonify({'status':3})
+    print("https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/"+cityEn+"/1?$format=JSON&$filter=RouteName/Zh_tw eq '"+routeName+"'")
+    data = json.loads(response.text)
+    if len(data) == 0:
+        return jsonify({'status':4})
+    stops = {}
+    for st in data:
+        #PlateNumb = st['PlateNumb']
+        StopName = st['StopName']['Zh_tw']
+        Direction = st['Direction']
+        #EstimateTime = st['EstimateTime']
+        StopStatus = st['StopStatus']
+        if "EstimateTime" in st:
+            Time = str(int(round(int(st['EstimateTime'])/60, 0)))
+        elif 'NextBusTime' in st:
+            Time  = st['NextBusTime']
+        else:
+            continue
+        sub = {'StopStatus':StopStatus, 'NextBusTime':Time}
+        if StopName in stops:
+            stops[StopName][Direction] = sub
+        else:
+            stops[StopName] = {Direction:sub}
+    # cur_time = datetime.now()
+    # h = cur_time.hour
+    # m = cur_time.minute  
+    if len(stops) == 0:
+        return jsonify({'status':4})
+    outbound = []
+    for st in dir0:
+        if st[0] not in stops:
+            continue
+        if 0 in stops[st[0]]:
+            idx = 0
+        # elif 255 in stops[st[0]]:
+        #     idx = 255
+        else:
+            continue
+        StopStatus = stops[st[0]][idx]['StopStatus']
+        if StopStatus == 1:
+            if ':' in stops[st[0]][idx]['NextBusTime']:
+                show = '尚未發車 ' + stops[st[0]][idx]['NextBusTime'][11:16]
+            else:
+                show = '尚未發車 ' + stops[st[0]][idx]['NextBusTime']+'分'
+        elif StopStatus == 2:
+            show = '交管不停靠'
+        elif StopStatus == 3:
+            show = '末班車已過'
+        elif StopStatus == 3:
+            show = '今日未營運'
+        else:
+            if ':' in stops[st[0]][idx]['NextBusTime']:
+                show = stops[st[0]][idx]['NextBusTime'][11:16]
+            else:
+                show = stops[st[0]][idx]['NextBusTime']+'分'
+        outbound.append({'StopName':st[0], 'show':show})
+    inbound = []
+    for st in dir1:
+        if st[0] not in stops:
+            continue
+        if 1 in stops[st[0]]:
+            idx = 1
+        # elif 255 in stops[st[0]]:
+        #     idx = 255
+        else:
+            continue
+        StopStatus = stops[st[0]][idx]['StopStatus']
+        if StopStatus == 1:
+            if ':' in stops[st[0]][idx]['NextBusTime']:
+                show = '尚未發車 ' + stops[st[0]][idx]['NextBusTime'][11:16]
+            else:
+                show = '尚未發車 ' + stops[st[0]][idx]['NextBusTime']+'分'
+        elif StopStatus == 2:
+            show = '交管不停靠'
+        elif StopStatus == 3:
+            show = '末班車已過'
+        elif StopStatus == 3:
+            show = '今日未營運'
+        else:
+            if ':' in stops[st[0]][idx]['NextBusTime']:
+                show = stops[st[0]][idx]['NextBusTime'][11:16]
+            else:
+                show = stops[st[0]][idx]['NextBusTime']+'分'
+        inbound.append({'StopName':st[0], 'show':show})
+    cycle = []
+    for st in dir2:
+        if st[0] not in stops:
+            continue
+        if 2 in stops[st[0]]:
+            idx = 2
+        # elif 255 in stops[st[0]]:
+        #     idx = 255
+        else:
+            continue
+        StopStatus = stops[st[0]][idx]['StopStatus']
+        if StopStatus == 1:
+            if ':' in stops[st[0]][idx]['NextBusTime']:
+                show = '尚未發車 ' + stops[st[0]][idx]['NextBusTime'][11:16]
+            else:
+                show = '尚未發車 ' + stops[st[0]][idx]['NextBusTime']+'分'
+        elif StopStatus == 2:
+            show = '交管不停靠'
+        elif StopStatus == 3:
+            show = '末班車已過'
+        elif StopStatus == 3:
+            show = '今日未營運'
+        else:
+            if ':' in stops[st[0]][idx]['NextBusTime']:
+                show = stops[st[0]][idx]['NextBusTime'][11:16]
+            else:
+                show = stops[st[0]][idx]['NextBusTime']+'分'
+        cycle.append({'StopName':st[0], 'show':show})
+    if len(dir2) == 0:
+        return jsonify({'status':3, 'outbound':outbound, 'inbound':inbound, 'outboundName': '往'+DestinationStopName, 'inboundName':'往'+DepartureStopName})
+    else:
+        return jsonify({'status':5, 'cycle':cycle, 'cycleName':DestinationStopName+' - '+DepartureStopName})
 
 #　Railway query
 @app.route("/RailwayResult/<trType>", methods = ['POST'])
@@ -239,4 +374,5 @@ def RailwayResult(trType):
     return jsonify({'trains':trains,'status':3})
 
 if __name__ == "__main__":        # on running python app.py
+
     app.run()                     # run the flask app

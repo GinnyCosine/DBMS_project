@@ -46,7 +46,6 @@ a{
 }
 
 .menu ul li:hover{
-    background: rgb(45, 121, 131);
-    color: #fff;
+    background: rgb(45, 121, 131) !important;
+    color: #fff  !important;
 }
-

@@ -15,7 +15,10 @@
     -->
 </head>
 <body>
-
+    <div class="user">
+        <span id='user_name'></span>
+        <button type="button" id="login">LOGIN</button>
+    </div>
     <header>大眾運輸整合系統</header>
     <div class="menu"> 
         <ul>
@@ -35,6 +38,8 @@
             <div class="time_type" id="bus_time_type1">現在時間</div>
             <div class='current_time'></div>
             <div class="time_choice"></div>
+            <br>
+            <br>
             <button type="button" id="bus_query">查詢</button>
         </article>
         <article>
@@ -128,7 +133,28 @@
         <h3>查詢結果</h3>
     </section>
     <section class='results'>
-        <div class="result">
+        <div class="result" id='bus_result'>
+            <button type="button" id="bus_update">更新</button>
+            <br>
+            <div class="bound" id="outbound"></div>
+            <div class="bound" id="inbound"></div>  
+            <br>
+            <nav id='outbound_st'>
+                <span>站名</span>
+                <ul></ul>
+            </nav>
+            <nav id='outbound_time'>
+                <span>預估時間</span>
+                <ul></ul>
+            </nav>
+            <nav id='inbound_st'>
+                <span>站名</span>
+                <ul></ul>
+            </nav>
+            <nav id='inbound_time'>
+                <span>預估時間</span>
+                <ul></ul>
+            </nav>
         </div>
         <div class="result" id='tra_result'>
             <nav>

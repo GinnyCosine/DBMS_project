@@ -5,14 +5,16 @@ $(document).ready(function(){
     document.getElementById("sub2").onclick = function(){
         var user = document.getElementById('user').value;
         var enterPwd = document.getElementById('pwd').value;
-        var pwd = getPassword(user);
-        if (enterPwd == pwd){
+        var status = getPassword(user, enterPwd);
+        if (status == 3){
             alert('Login success');
             //goToPage('publicTran.html');
             window.location.href = "http://127.0.0.1:5000/publicTransportation";
         }
-        else if(pwd != '###')
+        else if (status == 2)
             alert('Wroung password');
+        else if (status == 1)
+            alert('User does not exist');
     }
 
     // login
@@ -90,24 +92,25 @@ $(document).ready(function(){
 
 });
 
-function getPassword(user){
-    var req_url = "http://127.0.0.1:5000/login/" + user;
-    var pwd;
+function getPassword(user, pwd){
+    var req_url = "http://127.0.0.1:5000/login";
+    var status;
+    var dataJSON = {
+        "user":user,
+        "pwd": pwd
+    };
     $.ajax({ 
         url:req_url, 
-        type: "GET", 
+        type: "POST", 
         contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify(dataJSON),
         dataType: "json",
         async: false,
         success: function(data) {
-            pwd = data['pwd'];
-            if (pwd == '###'){
-                alert('User not exist');
-                location.reload();
-            }
+            status = data['status'];
         }
     });
-    return pwd;
+    return status;
 }
 
 function createUser(user,pwd){

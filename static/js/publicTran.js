@@ -5,12 +5,24 @@ $(document).ready(function(){
     */
     // Initial option set
     City = ['桃園市','嘉義縣','彰化縣','嘉義市','新竹市','新竹縣','花蓮縣','宜蘭縣','屏東縣','高雄市','基隆市','金門縣','連江縣','苗栗縣','南投縣','澎湖縣','臺南市','臺北市','新北市','臺東縣','臺中市','雲林縣'];
+    user = getUser();
+    if (user['status'] == 2){
+        $("#login").hide();
+    }
+    $("#login").click(function(){
+        window.location.href = "http://127.0.0.1:5000/";
+    });
+    document.getElementById('user_name').innerHTML = 'Hi! ' + user['userName'];
+    $(".menu li").eq(0).css('background','rgb(45, 121, 131)');
+    $(".menu li").eq(0).css('color','#fff');
     
+
     /*
     **** Bus
     */
     // bus time choice
     $('#bus_time_type1').click(function(){
+        var today = new Date();
         cur_month = today.getMonth() + 1;
         cur_date = today.getDate();
         time = cur_month + '月' + cur_date +'日 ';
@@ -138,6 +150,7 @@ $(document).ready(function(){
 
     // TRA time choice
     $('#tra_time_type1').click(function(){
+        var today = new Date();
         cur_month = today.getMonth() + 1;
         cur_date = today.getDate();
         time = cur_month + '月' + cur_date +'日 ';
@@ -161,6 +174,19 @@ $(document).ready(function(){
         $('#tra_time_type2').css('background','rgb(255, 210, 112)');
         $('#tra_time_type1').css('background','#dacdb6');
         time_choice = 2;
+        // First select current time
+        var today = new Date();
+        document.getElementById('tra_month').options[month-1].selected = true;
+        document.getElementById('tra_date').options[date-1].selected = true;
+        m = today.getMinutes();
+        tmp = get12Time(today.getHours())
+        if (tmp['ampm'] == 'AM')
+            document.getElementById('tra_am_pm').options[0].selected = true;
+        else
+            document.getElementById('tra_am_pm').options[1].selected = true;
+        document.getElementById('tra_hour').options[tmp['hour']-1].selected = true;
+        document.getElementById('tra_min').options[m].selected = true;
+
     });
 
     // choose today
@@ -176,19 +202,6 @@ $(document).ready(function(){
     else{
         addOptions(document.getElementById('tra_date'),1,31,1);
     }
-
-    // First select current time
-    document.getElementById('tra_month').options[month-1].selected = true;
-    document.getElementById('tra_date').options[date-1].selected = true;
-    m = today.getMinutes();
-    tmp = get12Time(today.getHours())
-    if (tmp['ampm'] == 'AM')
-        document.getElementById('tra_am_pm').options[0].selected = true;
-    else
-        document.getElementById('tra_am_pm').options[1].selected = true;
-    document.getElementById('tra_hour').options[tmp['hour']-1].selected = true;
-    document.getElementById('tra_min').options[m].selected = true;
-
 
 
     // TRA_from
@@ -355,6 +368,7 @@ $(document).ready(function(){
     
     // THSR time choice
     $('#thsr_time_type1').click(function(){
+        var today = new Date();
         cur_month = today.getMonth() + 1;
         cur_date = today.getDate();
         time = cur_month + '月' + cur_date +'日 ';
@@ -377,6 +391,18 @@ $(document).ready(function(){
         $('#thsr_time_type2').css('background','rgb(255, 210, 112)');
         $('#thsr_time_type1').css('background','#dacdb6');
         time_choice = 2;
+        // First select current time
+        document.getElementById('thsr_month').options[month-1].selected = true;
+        document.getElementById('thsr_date').options[date-1].selected = true;
+        var today = new Date();
+        m = today.getMinutes();
+        tmp = get12Time(today.getHours())
+        if (tmp['ampm'] == 'AM')
+            document.getElementById('thsr_am_pm').options[0].selected = true;
+        else
+            document.getElementById('thsr_am_pm').options[1].selected = true;
+        document.getElementById('thsr_hour').options[tmp['hour']-1].selected = true;
+        document.getElementById('thsr_min').options[m].selected = true;
     });
 
 
@@ -394,17 +420,7 @@ $(document).ready(function(){
         addOptions(document.getElementById('thsr_date'),1,31,1);
     }
 
-    // First select current time
-    document.getElementById('thsr_month').options[month-1].selected = true;
-    document.getElementById('thsr_date').options[date-1].selected = true;
-    m = today.getMinutes();
-    tmp = get12Time(today.getHours())
-    if (tmp['ampm'] == 'AM')
-        document.getElementById('thsr_am_pm').options[0].selected = true;
-    else
-        document.getElementById('thsr_am_pm').options[1].selected = true;
-    document.getElementById('thsr_hour').options[tmp['hour']-1].selected = true;
-    document.getElementById('thsr_min').options[m].selected = true;
+    
     var thsr_toStation = [];
     var thsr_fromStation = [];
 
@@ -568,11 +584,11 @@ $(document).ready(function(){
                 }
             }
             if (flag != 1){
-                alert("縣市與站名不相符")
+                alert("縣市與站名不相符");
                 return;
             }
         }
-        var to_city = document.getElementById("tra_from_city").value;
+        var to_city = document.getElementById("tra_to_city").value;
         if (tra_toStation.length > 0){
             var flag = 0;
             tra_toStation = getRailwayStationsFromCity(to_city, "TRA");
@@ -604,7 +620,8 @@ $(document).ready(function(){
             alert('無效車站名');
             return;
         }
-        else if (result['status'] == 2) {
+        UpdateSearchRecord(from_st, to_st, "TRA");
+        if (result['status'] == 2) {
             alert('查無班次')
             return;
         }
@@ -653,7 +670,7 @@ $(document).ready(function(){
                 return;
             }
         }
-        var to_city = document.getElementById("thsr_from_city").value;
+        var to_city = document.getElementById("thsr_to_city").value;
         if (thsr_toStation.length > 0){
             var flag = 0;
             thsr_toStation = getRailwayStationsFromCity(to_city, "THSR");
@@ -685,13 +702,13 @@ $(document).ready(function(){
             alert('無效車站名');
             return;
         }
-        else if (result['status'] == 2) {
+        UpdateSearchRecord(from_st,to_st,"THSR");
+        if (result['status'] == 2) {
             alert('查無班次')
             return;
         }
         $(".results h3").eq(2).css('opacity','1');
         var trains = result['trains'];
-        console.log(trains);
         var r1 = '',r2 = '', r3 = '';
         for (i = 0; i < trains.length; i++) {
             r1 += '<li>'+ trains[i]['TrainNo'] +'</li>';
@@ -705,14 +722,132 @@ $(document).ready(function(){
     });
 
     $("#bus_query").click(function(){
-        var hour = cur_h;
-        var min = cur_m;
-        var city = document.getElementById('bus_city').value;
-        var routeName = document.getElementById('bus_route').value;
-        var result = getBusResult(routeName, city, hour, min);
-        
+        bus_city = document.getElementById('bus_city').value;
+        bus_routeName = document.getElementById('bus_route').value;
+        var result = getBusResult(bus_routeName, bus_city);
+        if (result['status'] == 1){
+            alert('無效縣市名')
+            return;
+        }
+        else if (result['status'] == 2) {
+            alert('無效路線名')
+            return;
+        }
+        else if (result['status'] == 4) {
+            alert('本路線無提供預估到達時間')
+            return;
+        }
+        if (result['status'] == 5){
+            var r1 = '',r2 = '';
+            var out_stops = result['cycle'];
+            for (i = 0; i < out_stops.length; i++) {
+                r1 += '<li>'+ out_stops[i]['StopName'] +'</li>';
+                r2 += '<li>'+ out_stops[i]['show'] +'</li>';
+            }
+            $('#outbound_st ul').html(r1);
+            $('#outbound_time ul').html(r2);
+            $("#inbound_st").hide();
+            $("#inbound_time").hide();
+            $("#outbound_st").css('display','inline-block');
+            $("#outbound_time").css('display','inline-block');
+            $("#outbound").css('background','#ffd270');
+            $(".results h3").eq(0).css('opacity','1');
+            $(".results .result").eq(0).css('opacity','1');
+            return;
+        }
+        document.getElementById('outbound').innerText = result['outboundName'];
+        document.getElementById('inbound').innerText = result['inboundName'];
+        var r1 = '',r2 = '';
+        var out_stops = result['outbound'];
+        for (i = 0; i < out_stops.length; i++) {
+            r1 += '<li>'+ out_stops[i]['StopName'] +'</li>';
+            r2 += '<li>'+ out_stops[i]['show'] +'</li>';
+        }
+        $('#outbound_st ul').html(r1);
+        $('#outbound_time ul').html(r2);
+        var r3 = '',r4 = '';
+        var in_stops = result['inbound'];
+        for (i = 0; i < in_stops.length; i++) {
+            r3 += '<li>'+ in_stops[i]['StopName'] +'</li>';
+            r4 += '<li>'+ in_stops[i]['show'] +'</li>';
+        }
+        $('#inbound_st ul').html(r3);
+        $('#inbound_time ul').html(r4);
+        $("#inbound_st").hide();
+        $("#inbound_time").hide();
+        $("#outbound_st").css('display','inline-block');
+        $("#outbound_time").css('display','inline-block');
+        $("#outbound").css('background','#ffd270');
+        $("#inbound").css('background','#dacdb6');
+        $(".results h3").eq(0).css('opacity','1');
+        $(".results .result").eq(0).css('opacity','1');
+    });
+
+    $("#bus_update").click(function(){
+        var result = getBusResult(bus_routeName, bus_city);
+        document.getElementById('outbound').innerText = result['outboundName'];
+        document.getElementById('inbound').innerText = result['inboundName'];
+        var r1 = '',r2 = '';
+        var out_stops = result['outbound'];
+        for (i = 0; i < out_stops.length; i++) {
+            r1 += '<li>'+ out_stops[i]['StopName'] +'</li>';
+            r2 += '<li>'+ out_stops[i]['show'] +'</li>';
+        }
+        $('#outbound_st ul').html(r1);
+        $('#outbound_time ul').html(r2);
+        var r3 = '',r4 = '';
+        var in_stops = result['inbound'];
+        for (i = 0; i < in_stops.length; i++) {
+            r3 += '<li>'+ in_stops[i]['StopName'] +'</li>';
+            r4 += '<li>'+ in_stops[i]['show'] +'</li>';
+        }
+        $('#inbound_st ul').html(r3);
+        $('#inbound_time ul').html(r4);
+        $("#inbound_st").hide();
+        $("#inbound_time").hide();
+        $("#outbound_st").css('display','inline-block');
+        $("#outbound_time").css('display','inline-block');
+        $("#outbound").css('background','#ffd270');
+        $("#inbound").css('background','#dacdb6');
+        $(".results h3").eq(0).css('opacity','1');
+        $(".results .result").eq(0).css('opacity','1');
+    });
+
+    $("#outbound").click(function(){
+        $("#outbound_st").css('display','inline-block');
+        $("#outbound_time").css('display','inline-block');
+        $("#inbound_st").hide();
+        $("#inbound_time").hide();
+        $("#outbound").css('background','#ffd270');
+        $("#inbound").css('background','#dacdb6');
+    });
+
+    $("#inbound").click(function(){
+        $("#inbound_st").css('display','inline-block');
+        $("#inbound_time").css('display','inline-block');
+        $("#outbound_st").hide();
+        $("#outbound_time").hide();
+        $("#inbound").css('background','#ffd270');
+        $("#outbound").css('background','#dacdb6');
     })
+
 });
+
+function getUser(){
+    var req_url = "http://127.0.0.1:5000/user_name";
+    var user;
+    $.ajax({ 
+        url:req_url, 
+        type: "GET", 
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            user = data;
+        }
+    });
+    return user;
+}
 
 function addOptions(target, startNum, endNum, op){
     if (startNum > endNum)
@@ -829,15 +964,12 @@ function getRailwayStationsFromKeyin(keyin, type){
     return stations;
 }
 
-function getBusResult(routeName, city, hour, min){
+function getBusResult(routeName, city){
     var req_url = "http://127.0.0.1:5000/BusResult";
     var result;
     var dataJSON = {
         "routeName":routeName,
-        "city":city,
-        "month":month,
-        "hour":hour,
-        "min":min
+        "city":city
     };
     $.ajax({ 
         url:req_url, 
