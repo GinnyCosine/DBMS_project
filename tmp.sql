@@ -1,4 +1,0 @@
-SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.DepartureHour AS ArrivalHour, to_time.DepartureMin AS ArrivalMin             FROM (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence             FROM THSRtrainsTime WHERE StationID = 1000 AND       
-      DepartureHour >= 13 AND DepartureMin >= 56) AS from_time,             (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence FROM THSRtrainsTime             WHERE StationID = 1060 AND DepartureHour >= 13 AND     
-        DepartureMin >= 56) AS to_time, THSRtrainsDay WHERE from_time.TrainNo = to_time.TrainNo AND THSRtrainsDay.TrainNo = from_time.TrainNo AND from_time.StopSequence < to_time.StopSequence AND THSRtrainsDay.Mon = 1     
-        ORDER BY from_time.DepartureHour, from_time.DepartureMin

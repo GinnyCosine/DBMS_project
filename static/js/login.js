@@ -1,13 +1,13 @@
 $(document).ready(function(){
     $("form").hide();
 
-    // create account
+    // login
     document.getElementById("sub2").onclick = function(){
         var user = document.getElementById('user').value;
         var enterPwd = document.getElementById('pwd').value;
         var status = getPassword(user, enterPwd);
         if (status == 3){
-            alert('Login success');
+            //alert('Login success');
             //goToPage('publicTran.html');
             if (document.referrer == 'http://127.0.0.1:5000/myRoute'){
                 window.location.href = "http://127.0.0.1:5000/myRoute";
@@ -21,13 +21,21 @@ $(document).ready(function(){
             alert('User does not exist');
     }
 
-    // login
+    // create account
     document.getElementById("sub1").onclick = function(){
         var user = document.getElementById('c_user').value;
         var enterPwd = document.getElementById('c_pwd').value;
         var enterPwd_2 = document.getElementById('c_pwd_confirm').value;
+        if (user.length > 8) {
+            alert('Username longer than 8 words');
+            return;
+        }
         if (enterPwd != enterPwd_2){
             alert('Different password');
+            return;
+        }
+        if (enterPwd.length > 8) {
+            alert('Password longer than 8 words');
             return;
         }
         for (i = 0; i < enterPwd.length; i++){
@@ -41,9 +49,35 @@ $(document).ready(function(){
             alert('Username has been used');
         }
         else{
-            alert('Create account success');
+            alert('Create account success. Please login again');
         }
     }
+
+    $("#c_user").keyup(function(){
+        var user = document.getElementById('c_user').value;
+        var msg = document.getElementById('c_user_msg');
+        if (user.length > 8){
+            msg.innerHTML = 'Longer than 8 words';
+            $('#c_user_msg').css("color","red");
+        }
+        else{
+            msg.innerHTML = 'Upper limit 8 words';
+            $('#c_user_msg').css("color","black");
+        }
+    });
+
+    $("#c_user").click(function(){
+        var user = document.getElementById('c_user').value;
+        var msg = document.getElementById('c_user_msg');
+        if (user.length > 8){
+            msg.innerHTML = 'Longer than 8 words';
+            $('#c_user_msg').css("color","red");
+        }
+        else{
+            msg.innerHTML = 'Upper limit 8 words';
+            $('#c_user_msg').css("color","black");
+        }
+    });
 
     // detect input
     $("#c_pwd").keyup(function(){
