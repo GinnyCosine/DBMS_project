@@ -5,6 +5,11 @@ body{
     font-size: 15px;
     margin: 0;
     padding: 0;
+    overflow-x: hidden;
+}
+
+html{
+    overflow-x: hidden;
 }
 
 header{
@@ -35,7 +40,7 @@ header{
 
 a{
     text-decoration: none;
-    color: rgb(45, 121, 131);
+    color: #2d7983;
 }
 
 .menu ul li{
@@ -66,6 +71,7 @@ a{
 
 section{
     width: 100%;
+    padding: 30px 0;
     box-sizing: border-box;
 }
 
@@ -91,7 +97,7 @@ section header{
 }
 
 #add article{
-    padding: 5px 10px 5px 60px;
+    padding: 5px 10px 60px 60px;
     position: relative;
     float: left;
     width: 27%;
@@ -103,11 +109,20 @@ section header{
 
 #add_button{
     font-family: 'Noto Sans TC', sans-serif !important;
-    padding: 5px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    width: fit-content;
     font-size: 15px;
+    background: #d3e6e2;
+    color: #2d7983;
     -ms-transform: translate(60px, 0);
     -webkit-transform: translate(60px, 0);
     transform: translate(60px, 0);
+}
+
+#add_button:hover{
+    background: #c3e2dd;
+    cursor: pointer;
 }
 
 #add button{
@@ -135,4 +150,95 @@ button{
 .submsg:hover{
     cursor: pointer;
     background: #ffd270 !important;
+}
+
+.route{
+    width: 80%;
+    box-sizing: border-box;
+    -ms-transform: translate(60px, 0);
+    -webkit-transform: translate(60px, 0);
+    transform: translate(60px, 0);
+    padding: 20px 0;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.routes{
+    overflow-x: scroll;
+}
+
+.tr_type{
+    padding: 5px 17px;
+}
+
+.st_name{
+    padding: 2px 4px;
+    background: #dacdb6;
+    border-radius: 3px;
+}
+
+.space{
+    width: 10px;
+    height: 100%;
+    opacity: 0;
+}
+
+.seq{
+    width: 20px;
+    height: 20px;
+    font-size: 16px;
+    text-align: center;
+    line-height: 20px;
+    border-radius: 50%;
+    background: #ffc75f;
+    display: inline-block;
+}
+
+.nb{
+    padding: 0 20px 0 0;
+    border: thin 1px black;
+}
+
+.route_result{
+    display: none;
+    padding: 30px 0;
+}
+
+.route button{
+    display: inline-block;
+    -ms-transform: translate(10px, 5px);
+    -webkit-transform: translate(10px, 5px);
+    transform: translate(10px, 5px);
+}
+
+.subresult .subsubresult{
+    width: 100px;
+    text-align: center;
+    display: inline-block;
+}
+
+.title{
+    width: 100px;
+    text-align: center;
+    display: inline-block;
+}
+
+.seq_res{
+    width: 350px;
+    text-align: center;
+    display: inline-block;
+}
+
+
+.subsubresult:nth-child(2n){
+    background: #f6f0d3;
+}
+
+
+.title:nth-child(2n){
+    background: #f6f0d3;
+}
+
+.interval{
+    color: #d4550b;
 }

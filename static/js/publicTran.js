@@ -282,13 +282,17 @@ $(document).ready(function(){
     // Add station options from city
     $('#tra_from_st').click(function(){
         var city = document.getElementById('tra_from_city').value;
+        var keyin = document.getElementById('tra_from_st').value;
         var msg = document.getElementById('msg_tra_from_st');
-        if (city.length == 0){
+        if (city.length == 0 && keyin.length == 0){
             var record = getSearchRecord("TRA",'fromStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ record[i]['target'] + '</div>';
             }
+            return;
+        }
+        if (city.length == 0) {
             return;
         }
         tra_fromStation = getRailwayStationsFromCity(city, "TRA");
@@ -301,6 +305,7 @@ $(document).ready(function(){
     // Filter station options
     $('#tra_from_st').keyup(function(){
         var keyin = document.getElementById('tra_from_st').value;
+        var city = document.getElementById('tra_from_city').value;
         var msg = document.getElementById('msg_tra_from_st');
         if (keyin.length == 0){
             if (tra_fromStation.length != 0){
@@ -318,7 +323,7 @@ $(document).ready(function(){
             msg.innerHTML = '';
             for (i = 0; i < tra_fromStation.length; i++){
                 var st = tra_fromStation[i]['stationName'];
-                if (st.includes(keyin))
+                if (st.includes(keyin) && st != keyin)
                     msg.innerHTML += '<div class="submsg">'+ st +'</div>';
             }
         }
@@ -326,6 +331,12 @@ $(document).ready(function(){
             console.log(2)
             var stations = getRailwayStationsFromKeyin(keyin, "TRA");
             msg.innerHTML = '';
+            if (stations.length <= 0){
+                return;
+            }
+            else if (stations.length == 1 && stations[0]['stationName'] == keyin){
+                return;
+            }
             for (i = 0; i < stations.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ stations[i]['stationName'] +'</div>';
             }
@@ -385,13 +396,17 @@ $(document).ready(function(){
     // Add station options from city
     $('#tra_to_st').click(function(){
         var city = document.getElementById('tra_to_city').value;
+        var keyin = document.getElementById('tra_to_st').value;
         var msg = document.getElementById('msg_tra_to_st');
-        if (city.length == 0){
+        if (city.length == 0 && keyin.length == 0){
             var record = getSearchRecord('TRA','toStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ record[i]['target'] + '</div>';
             }
+            return;
+        }
+        if (city.length == 0) {
             return;
         }
         tra_toStation = getRailwayStationsFromCity(city, "TRA");
@@ -403,10 +418,11 @@ $(document).ready(function(){
 
     // Filter station options
     $('#tra_to_st').keyup(function(){
+        var city = document.getElementById('tra_to_city').value;
         var keyin = document.getElementById('tra_to_st').value;
         var msg = document.getElementById('msg_tra_to_st');
         if (keyin.length == 0){
-            if (tra_toStation.length != 0)
+            if (city.length != 0)
                 return;
             var record = getSearchRecord('TRA','toStationName');
             msg.innerHTML = '';
@@ -415,12 +431,12 @@ $(document).ready(function(){
             }
             return;
         }
-        if (tra_toStation.length != 0){
+        if (city.length != 0){
             console.log(1)
             msg.innerHTML = '';
             for (i = 0; i < tra_toStation.length; i++){
                 var st = tra_toStation[i]['stationName'];
-                if (st.includes(keyin))
+                if (st.includes(keyin) && st!=keyin)
                     msg.innerHTML += '<div class="submsg">'+ st +'</div>';
             }
         }
@@ -428,6 +444,12 @@ $(document).ready(function(){
             console.log(2)
             var stations = getRailwayStationsFromKeyin(keyin, "TRA");
             msg.innerHTML = '';
+            if (stations.length <= 0){
+                return;
+            }
+            else if (stations.length == 1 && stations[0]['stationName'] == keyin){
+                return;
+            }
             for (i = 0; i < stations.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ stations[i]['stationName'] +'</div>';
             }
@@ -567,13 +589,17 @@ $(document).ready(function(){
     // Add station options from city
     $('#thsr_from_st').click(function(){
         var city = document.getElementById('thsr_from_city').value;
+        var keyin = document.getElementById('thsr_from_st').value;
         var msg = document.getElementById('msg_thsr_from_st');
-        if (city.length == 0){
+        if (city.length == 0 && keyin.length == 0){
             var record = getSearchRecord('THSR','fromStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ record[i]['target'] + '</div>';
             }
+            return;
+        }
+        if (city.length == 0) {
             return;
         }
         thsr_fromStation = getRailwayStationsFromCity(city, "THSR");
@@ -585,9 +611,11 @@ $(document).ready(function(){
 
     // Filter station options
     $('#thsr_from_st').keyup(function(){
+        var city = document.getElementById('thsr_from_city').value;
         var keyin = document.getElementById('thsr_from_st').value;
+        var msg = document.getElementById('msg_thsr_from_st');
         if (keyin.length == 0){
-            if (thsr_fromStation.length != 0)
+            if (city.length != 0)
                 return;
             var record = getSearchRecord('THSR','fromStationName');
             msg.innerHTML = '';
@@ -596,18 +624,23 @@ $(document).ready(function(){
             }
             return;
         }
-        var msg = document.getElementById('msg_thsr_from_st');
-        if (thsr_fromStation.length != 0){
+        if (city.length != 0){
             msg.innerHTML = '';
             for (i = 0; i < thsr_fromStation.length; i++){
                 var st = thsr_fromStation[i]['stationName'];
-                if (st.includes(keyin))
+                if (st.includes(keyin) && st != keyin)
                     msg.innerHTML += '<div class="submsg">'+ st +'</div>';
             }
         }
         else {
             var stations = getRailwayStationsFromKeyin(keyin, "THSR");
             msg.innerHTML = '';
+            if (stations.length <= 0){
+                return;
+            }
+            else if (stations.length == 1 && stations[0]['stationName'] == keyin){
+                return;
+            }
             for (i = 0; i < stations.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ stations[i]['stationName'] +'</div>';
             }
@@ -666,13 +699,17 @@ $(document).ready(function(){
     // Add station options from city
     $('#thsr_to_st').click(function(){
         var city = document.getElementById('thsr_to_city').value;
+        var keyin = document.getElementById('thsr_to_st').value;
         var msg = document.getElementById('msg_thsr_to_st');
-        if (city.length == 0){
+        if (city.length == 0 && keyin.length == 0){
             var record = getSearchRecord("THSR",'toStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ record[i]['target'] + '</div>';
             }
+            return;
+        }
+        if (city.length == 0) {
             return;
         }
         thsr_toStation = getRailwayStationsFromCity(city, "THSR");
@@ -684,9 +721,11 @@ $(document).ready(function(){
 
     // Filter station options
     $('#thsr_to_st').keyup(function(){
+        var city = document.getElementById('thsr_to_city').value;
         var keyin = document.getElementById('thsr_to_st').value;
+        var msg = document.getElementById('msg_thsr_to_st');
         if (keyin.length == 0){
-            if (thsr_toStation.length != 0)
+            if (city.length != 0)
                 return;
             var record = getSearchRecord("THSR",'toStationName');
             msg.innerHTML = '';
@@ -695,18 +734,23 @@ $(document).ready(function(){
             }
             return;
         }
-        var msg = document.getElementById('msg_thsr_to_st');
-        if (thsr_toStation.length != 0){
+        if (city.length != 0){
             msg.innerHTML = '';
             for (i = 0; i < thsr_toStation.length; i++){
                 var st = thsr_toStation[i]['stationName'];
-                if (st.includes(keyin))
+                if (st.includes(keyin) && st != keyin)
                     msg.innerHTML += '<div class="submsg">'+ st +'</div>';
             }
         }
         else {
             var stations = getRailwayStationsFromKeyin(keyin, "THSR");
             msg.innerHTML = '';
+            if (stations.length <= 0){
+                return;
+            }
+            else if (stations.length == 1 && stations[0]['stationName'] == keyin){
+                return;
+            }
             for (i = 0; i < stations.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ stations[i]['stationName'] +'</div>';
             }

@@ -38,4 +38,7 @@ section{
 
 header{
     font-family: 'Noto Sans TC', sans-serif;
+    text-align: center;
+    font-size: 20px;
+    padding: 10px 0;
 }

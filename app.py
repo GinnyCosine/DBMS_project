@@ -459,17 +459,98 @@ def serchRailway(trType):
 ##### here !!!
 @app.route("/addMyRoute", methods = ['POST'])
 def addMyRoute():
-    mycursor.execute('SELECT COUNT(ID) FROM UserMyRoute WHERE user = "' + user_ + '"')
+    mycursor.execute('SELECT COUNT(DISTINCT(ID)) FROM UserMyRoute WHERE user = "' + user_ + '"')
     result = mycursor.fetchall()
     ID = int(result[0][0]) + 1
     seq = 1
     for each in request.json['routes']:
         mycursor.execute('INSERT INTO UserMyRoute (user, ID, sequence, type, fromID ,toID) VALUES ("' \
-        + user_ + '","'+ ID +'","'+seq+'","'+each['type']+'","'+each['from']+'","'+each['to']+'")')
+        + user_ + '","'+ str(ID) +'","'+str(seq)+'","'+each['type']+'","'+str(each['from'])+'","'+str(each['to'])+'")')
         connection.commit()
         seq += 1
     return jsonify({'status':1})
 
-if __name__ == "__main__":        # on running python app.py
+@app.route("/getMyRoutes", methods = ['GET'])
+def getMyRoutes():
+    mycursor.execute('SELECT ID, sequence, type, fromID, toID FROM UserMyRoute WHERE user = "' + user_ + '"')
+    result = mycursor.fetchall()
+    if (len(result) == 0):
+        return jsonify({'status':1})
+    routes = {}
+    for each in result:
+        mycursor.execute('SELECT StationName FROM ' + str(each[2]) + 'stations WHERE StationID = "' + str(each[3]) + '"')
+        f = mycursor.fetchall()
+        f_name = f[0][0]
+        mycursor.execute('SELECT StationName FROM ' + str(each[2]) + 'stations WHERE StationID = "' + str(each[4]) + '"')
+        i = mycursor.fetchall()
+        i_name = i[0][0]
+        ID = str(each[0])
+        if ID in routes:
+            routes[ID].append({'type':each[2],'from':f_name, 'to':i_name})
+        else:
+            routes[ID] = [{'type':each[2],'from':f_name, 'to':i_name}]
+    return jsonify({'status':2, 'routes':routes, 'cnt': result[len(result)-1][0]})
 
+@app.route("/deleteMyRoute/<routeID>", methods = ['GET'])
+def deleteMyRoute(routeID):
+    mycursor.execute('SELECT COUNT(DISTINCT(ID)) FROM UserMyRoute WHERE user = "' + user_ + '"')
+    result = mycursor.fetchall()
+    total = result[0][0]
+    mycursor.execute('DELETE FROM UserMyRoute WHERE user = "' + user_ + '" AND ID = '+str(routeID))
+    connection.commit()
+    for idx in range(int(routeID),int(total)):
+        mycursor.execute('UPDATE UserMyRoute SET ID = '+ str(idx) +' WHERE user = "' + user_ + '" AND ID = '+str(idx+1))
+        print('UPDATE UserMyRoute SET ID = '+ str(idx) +' WHERE user = "' + user_ + '" AND ID = '+str(idx+1))
+        connection.commit()
+    return jsonify({'status':1})
+
+@app.route("/queryMyRoute/<routeID>", methods = ['GET'])
+def queryMyRoute(routeID):
+    month = datetime.now().month
+    day = datetime.now().day
+    h = datetime.now().hour
+    m = datetime.now().minute
+    week = Week[datetime.strptime("2020" + str(month) + str(day), "%Y%m%d").weekday()]
+    from_clauses = 'FROM '
+    where_clauses = 'WHERE '
+    order_clauses = 'ORDER BY '
+    mycursor.execute('SELECT ID, sequence, type, fromID, toID FROM UserMyRoute WHERE user = "' + user_ + '" AND ID = '+str(routeID))
+    result = mycursor.fetchall()
+    for each in result:
+        if each[2] == "TRA":
+            from_ = '(SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.ArrivalHour AS ArrivalHour, to_time.ArrivalMin AS ArrivalMin \
+                FROM (SELECT TrainNo, ArrivalHour, ArrivalMin, StopSequence \
+                FROM TRAtrainsTime WHERE StationID = ' + str(each[4]) + ' AND \
+                (ArrivalHour > ' + str(h) + ' OR (ArrivalHour = '+ str(h) + ' AND ArrivalMin >= ' + str(m) + '))) AS to_time, \
+                (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence FROM TRAtrainsTime \
+                WHERE StationID = ' + str(each[3]) + ' AND (DepartureHour > ' + str(h) + ' OR (DepartureHour = '+ str(h) + ' AND DepartureMin >= ' + str(m) + '))) AS from_time, TRAtrainsDay, TRAtrainsInfo \
+                WHERE from_time.TrainNo = to_time.TrainNo AND TRAtrainsDay.TrainNo = from_time.TrainNo AND TRAtrainsInfo.TrainNo = from_time.TrainNo AND from_time.StopSequence < to_time.StopSequence AND TRAtrainsDay.' + week + ' = 1 \
+                ORDER BY from_time.DepartureHour, from_time.DepartureMin) AS seq'+str(each[1])
+        else:
+            from_ = '(SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.DepartureHour AS ArrivalHour, to_time.DepartureMin AS ArrivalMin \
+                FROM (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence \
+                FROM THSRtrainsTime WHERE StationID = ' + str(each[3]) + ' AND \
+                (DepartureHour > ' + str(h) + ' OR (DepartureHour = '+ str(h) + ' AND DepartureMin >= ' + str(m) + '))) AS from_time, \
+                (SELECT TrainNo, DepartureHour, DepartureMin, StopSequence FROM THSRtrainsTime \
+                WHERE StationID = ' + str(each[4]) + ' AND (DepartureHour > ' + str(h) + ' OR (DepartureHour = '+ str(h) + ' AND DepartureMin >= ' + str(m) + '))) AS to_time, THSRtrainsDay WHERE from_time.TrainNo = to_time.TrainNo AND THSRtrainsDay.TrainNo = from_time.TrainNo AND from_time.StopSequence < to_time.StopSequence AND THSRtrainsDay.' + week + ' = 1 \
+                ORDER BY from_time.DepartureHour, from_time.DepartureMin) AS seq'+str(each[1])
+        order_clauses += 'seq'+str(each[1])+'.DepartureHour, seq'+str(each[1])+'.DepartureMin'
+        from_clauses += from_ +' '
+        if each[1] > 1:
+            where_clauses += '(((seq'+str(each[1])+'.DepartureHour - seq'+str(each[1]-1)+'.ArrivalHour) * 60 + (seq'+str(each[1])+'.DepartureMin - seq'+str(each[1]-1)+'.ArrivalMin)) BETWEEN 10 AND 30)'
+        if each[1] < len(result):
+            from_clauses += ', '
+            order_clauses += ', '
+        if each[1] > 1 and each[1] < len(result):
+            where_clauses += ' AND '
+    select_clause = 'SELECT * '
+    query = select_clause + from_clauses + where_clauses + order_clauses
+    print(query)
+    mycursor.execute(query)
+    result2 = mycursor.fetchall()
+    if len(result2) == 0:
+        return jsonify({'status':2})
+    return jsonify({'status':1, 'result': result2, 'length':result[len(result)-1][1]})
+
+if __name__ == "__main__":        # on running python app.py
     app.run()                     # run the flask app
