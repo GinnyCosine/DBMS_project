@@ -16,6 +16,7 @@ $(document).ready(function(){
         $('#add').toggle(300);
         myRoute = [];
         myRoute_cnt = 0;
+        document.getElementById('subroutes').innerHTML = '<button type="button" id="confirm">確定新增</button>';
     });
 
     if (user['status'] == 1){
@@ -471,7 +472,7 @@ $(document).ready(function(){
         }
         var result1 = serchRailway(from_st, "TRA");
         var result2 = serchRailway(to_st, "TRA");
-        if (result1 == 1 || result2 == 1){
+        if (result1['status'] == 1 || result2['status'] == 1){
             alert('無效車站名');
             return;
         }
@@ -480,7 +481,12 @@ $(document).ready(function(){
         myRoute_cnt++;
         var each = '<div class="subroute"><span>'+myRoute_cnt+' TRA '+from_st+' >>>> '+to_st+'</span></div>';
         document.getElementById('subroutes').innerHTML += each;
-        myRoute.push({'type':'TRA','from':from_st, 'to':to_st})
+        myRoute.push({'type':'TRA','from':result1['stationID'], 'to':to_st['stationID']})
+        myRoute.push({'type':'THSR','from':result1['stationID'], 'to':to_st['stationID']})
+        var from_st = document.getElementById("tra_from_st").value = '';
+        var to_st = document.getElementById("tra_to_st").value = '';
+        var from_city = document.getElementById("tra_from_city").value = '';
+        var to_city = document.getElementById("tra_to_city").value = '';
     });
 
     $("#thsr_add").click(function(){
@@ -526,7 +532,7 @@ $(document).ready(function(){
         }
         var result1 = serchRailway(from_st, "THSR");
         var result2 = serchRailway(to_st, "THSR");
-        if (result1 == 1 || result2 == 1){
+        if (result1['status'] == 1 || result2['status'] == 1){
             alert('無效車站名');
             return;
         }
@@ -536,10 +542,14 @@ $(document).ready(function(){
         var each = '<div class="subroute"><span>'+myRoute_cnt+' THSR '+from_st+' >>>> '+to_st+'</span></div>';
         document.getElementById('subroutes').innerHTML += each;
         // myRoute_cnt++;
-        myRoute.push({'type':'THSR','from':from_st, 'to':to_st})
+        myRoute.push({'type':'THSR','from':result1['stationID'], 'to':to_st['stationID']})
+        var from_st = document.getElementById("thsr_from_st").value = '';
+        var to_st = document.getElementById("thsr_to_st").value = '';
+        var from_city = document.getElementById("thsr_from_city").value = '';
+        var to_city = document.getElementById("thsr_to_city").value = '';
     });
 
-    $('#confirm').click(function(){
+    $("#subroutes").on('click','#confirm',function(){
         if (myRoute.length == 0){
             alert('尚未新增任何路線');
             return;
@@ -574,7 +584,7 @@ function serchRailway(st, type){
     var dataJSON = {
         "station":st
     };
-    var status;
+    var result;
     $.ajax({ 
         url:req_url, 
         type: "POST", 
@@ -583,10 +593,10 @@ function serchRailway(st, type){
         dataType: "json",
         async: false,
         success: function(data) {
-            status = data['status'];
+            result = data;
         }
     });
-    return status;
+    return result;
 }
 
 function getUser(){

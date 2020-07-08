@@ -454,7 +454,7 @@ def serchRailway(trType):
     if len(result) == 0:
         return jsonify({'status':1})
     else:
-        return jsonify({'status':2})
+        return jsonify({'status':2, 'stationID':result[0][0]})
 
 ##### here !!!
 @app.route("/addMyRoute", methods = ['POST'])
@@ -464,18 +464,11 @@ def addMyRoute():
     ID = int(result[0][0]) + 1
     seq = 1
     for each in request.json['routes']:
-        trType = each['type']
-        mycursor.execute('SELECT StationID FROM '+trType+'stations WHERE StationName = "' + each['from'] + '"')
-        result = mycursor.fetchall()
-        fromID = result[0][0]
-        mycursor.execute('SELECT StationID FROM '+trType+'stations WHERE StationName = "' + each['to'] + '"')
-        result = mycursor.fetchall()
-        toID = result[0][0]
         mycursor.execute('INSERT INTO UserMyRoute (user, ID, sequence, type, fromID ,toID) VALUES ("' \
-        + user_ + '","'+ ID +'","'+seq+'","'+trType+'","'+fromID+'","'+toID+'")')
+        + user_ + '","'+ ID +'","'+seq+'","'+each['type']+'","'+each['from']+'","'+each['to']+'")')
         connection.commit()
         seq += 1
-    return jsonify({'status':2})
+    return jsonify({'status':1})
 
 if __name__ == "__main__":        # on running python app.py
 

@@ -9,6 +9,10 @@ $(document).ready(function(){
         if (status == 3){
             alert('Login success');
             //goToPage('publicTran.html');
+            if (document.referrer == 'http://127.0.0.1:5000/myRoute'){
+                window.location.href = "http://127.0.0.1:5000/myRoute";
+                return;
+            }
             window.location.href = "http://127.0.0.1:5000/publicTransportation";
         }
         else if (status == 2)
