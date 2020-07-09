@@ -36,14 +36,14 @@ $(document).ready(function(){
         $('article .current_time').eq(0).show();
         $('article .time_choice').eq(0).hide();
         $('#bus_time_type1').css('background','rgb(255, 210, 112)');
-        time_choice = 1;
+        bus_time_choice = 1;
     });
 
     $("#bus_city").click(function () {
         var keyin = document.getElementById('bus_city').value;
         var msg = document.getElementById('msg_bus_city');
         if (keyin.length == 0){
-            var record = getSearchRecord('Bus');
+            var record = getSearchRecord('Bus','City');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ record[i]['target'] + '</div>';
@@ -85,7 +85,8 @@ $(document).ready(function(){
         var city = document.getElementById('bus_city').value;
         var msg = document.getElementById('msg_bus_route');
         if (city.length == 0){
-            var record = getSearchRecord('Bus','City');
+            var record = getSearchRecord('Bus','RouteName');
+            console.log(record);
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ record[i]['target'] + '</div>';
@@ -173,7 +174,9 @@ $(document).ready(function(){
     };
     tra_toStation = [];
     tra_fromStation = [];
-    time_choice = 0;
+    bus_time_choice = 0;
+    tra_time_choice = 0;
+    thsr_time_choice = 0;
     $(".results h3").css('opacity','0');
     $(".results .result").css('opacity','0');
 
@@ -198,14 +201,14 @@ $(document).ready(function(){
         $('article .time_choice').eq(1).hide();
         $('#tra_time_type1').css('background','rgb(255, 210, 112)');
         $('#tra_time_type2').css('background','#dacdb6');
-        time_choice = 1;
+        tra_time_choice = 1;
     });
     $('#tra_time_type2').click(function(){
         $('article .time_choice').eq(1).show();
         $('article .current_time').eq(1).hide();
         $('#tra_time_type2').css('background','rgb(255, 210, 112)');
         $('#tra_time_type1').css('background','#dacdb6');
-        time_choice = 2;
+        tra_time_choice = 2;
         // First select current time
         var today = new Date();
         document.getElementById('tra_month').options[month-1].selected = true;
@@ -503,14 +506,14 @@ $(document).ready(function(){
         $('article .time_choice').eq(2).hide();
         $('#thsr_time_type1').css('background','rgb(255, 210, 112)');
         $('#thsr_time_type2').css('background','#dacdb6');
-        time_choice = 1;
+        thsr_time_choice = 1;
     });
     $('#thsr_time_type2').click(function(){
         $('article .time_choice').eq(2).show();
         $('article .current_time').eq(2).hide();
         $('#thsr_time_type2').css('background','rgb(255, 210, 112)');
         $('#thsr_time_type1').css('background','#dacdb6');
-        time_choice = 2;
+        thsr_time_choice = 2;
         // First select current time
         document.getElementById('thsr_month').options[month-1].selected = true;
         document.getElementById('thsr_date').options[date-1].selected = true;
@@ -768,7 +771,7 @@ $(document).ready(function(){
      *** 查詢 
     */
     $("#tra_query").click(function(){
-        if (time_choice == 0){
+        if (tra_time_choice == 0){
             alert('請選擇時間');
             return; 
         }
@@ -808,7 +811,7 @@ $(document).ready(function(){
                 return;
             }
         }
-        if (time_choice == 2) {
+        if (tra_time_choice == 2) {
             var hour = get24Time(document.getElementById("tra_hour").value,document.getElementById("tra_am_pm").value);
             var min = document.getElementById("tra_min").value;
             var month = document.getElementById("tra_month").value;
@@ -850,7 +853,7 @@ $(document).ready(function(){
 
     
     $("#thsr_query").click(function(){
-        if (time_choice == 0){
+        if (thsr_time_choice == 0){
             alert('請選擇時間');
             return; 
         }
@@ -890,7 +893,7 @@ $(document).ready(function(){
                 return;
             }
         }
-        if (time_choice == 2) {
+        if (thsr_time_choice == 2) {
             var hour = get24Time(document.getElementById("thsr_hour").value,document.getElementById("thsr_am_pm").value);
             var min = document.getElementById("thsr_min").value;
             var month = document.getElementById("thsr_month").value;
@@ -1036,6 +1039,27 @@ $(document).ready(function(){
         $("#inbound").css('background','#ffd270');
         $("#outbound").css('background','#dacdb6');
     })
+
+    // 點擊submsg以外的其他區域時會隱藏submsg
+    $("article, .menu, #top").click(function(){
+        console.log('hide2'); 
+        $('.submsg').hide();
+    });
+
+    $("input").click(function (event){
+        $('.submsg').hide();
+        var msg = '#msg_'+$(this).attr('id');
+        if (msg == '#msg_bus_route'){
+            for (i = 0; i < 8; i++){
+                $(msg +' .submsg').eq(i).show();
+            }
+            event.stopPropagation();    // 阻止事件往上
+            return;
+        }
+        $(msg +' .submsg').show();
+        event.stopPropagation();    // 阻止事件往上
+    })
+
 
 });
 
@@ -1268,6 +1292,8 @@ function getSearchRecord(type, target) {
     if (user['status'] == 1){
         return;
     }
+    console.log(type);
+    console.log(target);
     var req_url = "http://127.0.0.1:5000/getSearchRecord/"+type+"/"+target;
     var result;
     $.ajax({ 

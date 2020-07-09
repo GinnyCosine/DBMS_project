@@ -53,7 +53,7 @@ Week = ['Mon','Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 # create an app instance
 app = Flask(__name__)
 
-user_ = '###'
+user_ = ''
 
 # at the end point / 根目錄
 @app.route("/")
@@ -86,7 +86,7 @@ def user_login():
 
 @app.route("/user_name", methods = ['GET'])
 def user_name():
-    if user_ == '###':
+    if len(user_) == 0:
         return jsonify({'status':1, 'userName':'GUEST'})
     else:
         return jsonify({'status':2, 'userName':user_})

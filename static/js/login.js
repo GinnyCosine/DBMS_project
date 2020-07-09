@@ -5,10 +5,8 @@ $(document).ready(function(){
     document.getElementById("sub2").onclick = function(){
         var user = document.getElementById('user').value;
         var enterPwd = document.getElementById('pwd').value;
-        var status = getPassword(user, enterPwd);
+        var status = userLogin(user, enterPwd);
         if (status == 3){
-            //alert('Login success');
-            //goToPage('publicTran.html');
             if (document.referrer == 'http://127.0.0.1:5000/myRoute'){
                 window.location.href = "http://127.0.0.1:5000/myRoute";
                 return;
@@ -39,7 +37,9 @@ $(document).ready(function(){
             return;
         }
         for (i = 0; i < enterPwd.length; i++){
-            if(!((enterPwd[i].charCodeAt()>=65 &&enterPwd[i].charCodeAt()<=90)||(enterPwd[i].charCodeAt()>=97 &&enterPwd[i].charCodeAt()<=122)||(enterPwd[i].charCodeAt()>=48 &&enterPwd[i].charCodeAt()<=57))){
+            if(!((enterPwd[i].charCodeAt()>=65 &&enterPwd[i].charCodeAt()<=90)||
+                (enterPwd[i].charCodeAt()>=97 &&enterPwd[i].charCodeAt()<=122)||
+                (enterPwd[i].charCodeAt()>=48 &&enterPwd[i].charCodeAt()<=57))){
                 alert('Password can only contain English words and number');
                 return;
             }
@@ -130,7 +130,7 @@ $(document).ready(function(){
 
 });
 
-function getPassword(user, pwd){
+function userLogin(user, pwd){
     var req_url = "http://127.0.0.1:5000/login";
     var status;
     var dataJSON = {
