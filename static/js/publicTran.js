@@ -11,7 +11,6 @@ $(document).ready(function(){
     });
     $("#logout").click(function(){
         userLogout();
-        user = getUser();
     });
     $(".menu li").eq(0).css('background','rgb(45, 121, 131)');
     $(".menu li").eq(0).css('color','#fff');
@@ -84,7 +83,7 @@ $(document).ready(function(){
     $('#bus_route').click(function(){
         var city = document.getElementById('bus_city').value;
         var msg = document.getElementById('msg_bus_route');
-        if (city.length == 0){
+        if (!(City.includes(city))){
             var record = getSearchRecord('Bus','RouteName');
             console.log(record);
             msg.innerHTML = '';
@@ -93,8 +92,12 @@ $(document).ready(function(){
             }
             return;
         }
-        bus_route = getBusRouteFromCity(city);
         msg.innerHTML = '';
+        var result = getBusRouteFromCity(city);
+        if (result['status'] == 1){
+            return;
+        }
+        bus_route = result['routes'];
         for (i = 0; i < bus_route.length; i++){
             msg.innerHTML += '<div class="submsg">'+ bus_route[i]['route'] +'</div>';
         }
@@ -108,7 +111,7 @@ $(document).ready(function(){
     $('#bus_route').keyup(function(){
         var city = document.getElementById('bus_city').value;
         var msg = document.getElementById('msg_bus_route');
-        if (city.length == 0){
+        if (!(City.includes(city))){
             var record = getSearchRecord('Bus','RouteName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
@@ -133,8 +136,12 @@ $(document).ready(function(){
             }
         }
         else {
-            var routes = getBusRouteFromCity(city);
             msg.innerHTML = '';
+            var result = getBusRouteFromCity(city);
+            if (result['status'] == 1){
+                return;
+            }
+            var routes = result['routes'];
             for (i = 0; i < routes.length; i++){
                 msg.innerHTML += '<div class="submsg">'+ routes[i]['route'] +'</div>';
             }
@@ -287,7 +294,7 @@ $(document).ready(function(){
         var city = document.getElementById('tra_from_city').value;
         var keyin = document.getElementById('tra_from_st').value;
         var msg = document.getElementById('msg_tra_from_st');
-        if (city.length == 0 && keyin.length == 0){
+        if (!(City.includes(city)) && keyin.length == 0){
             var record = getSearchRecord("TRA",'fromStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
@@ -295,7 +302,7 @@ $(document).ready(function(){
             }
             return;
         }
-        if (city.length == 0) {
+        if (!(City.includes(city))) {
             return;
         }
         tra_fromStation = getRailwayStationsFromCity(city, "TRA");
@@ -401,7 +408,7 @@ $(document).ready(function(){
         var city = document.getElementById('tra_to_city').value;
         var keyin = document.getElementById('tra_to_st').value;
         var msg = document.getElementById('msg_tra_to_st');
-        if (city.length == 0 && keyin.length == 0){
+        if (!(City.includes(city)) && keyin.length == 0){
             var record = getSearchRecord('TRA','toStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
@@ -409,7 +416,7 @@ $(document).ready(function(){
             }
             return;
         }
-        if (city.length == 0) {
+        if (!(City.includes(city))) {
             return;
         }
         tra_toStation = getRailwayStationsFromCity(city, "TRA");
@@ -594,7 +601,7 @@ $(document).ready(function(){
         var city = document.getElementById('thsr_from_city').value;
         var keyin = document.getElementById('thsr_from_st').value;
         var msg = document.getElementById('msg_thsr_from_st');
-        if (city.length == 0 && keyin.length == 0){
+        if (!(City.includes(city)) && keyin.length == 0){
             var record = getSearchRecord('THSR','fromStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
@@ -602,7 +609,7 @@ $(document).ready(function(){
             }
             return;
         }
-        if (city.length == 0) {
+        if (!(City.includes(city))) {
             return;
         }
         thsr_fromStation = getRailwayStationsFromCity(city, "THSR");
@@ -704,7 +711,7 @@ $(document).ready(function(){
         var city = document.getElementById('thsr_to_city').value;
         var keyin = document.getElementById('thsr_to_st').value;
         var msg = document.getElementById('msg_thsr_to_st');
-        if (city.length == 0 && keyin.length == 0){
+        if (!(City.includes(city)) && keyin.length == 0){
             var record = getSearchRecord("THSR",'toStationName');
             msg.innerHTML = '';
             for(i = 0; i< record.length; i++){
@@ -712,7 +719,7 @@ $(document).ready(function(){
             }
             return;
         }
-        if (city.length == 0) {
+        if (!(City.includes(city))) {
             return;
         }
         thsr_toStation = getRailwayStationsFromCity(city, "THSR");
@@ -781,8 +788,16 @@ $(document).ready(function(){
             alert('請輸入車站名');
             return;
         }
+        if (from_st == to_st){
+            alert('起訖站相同');
+            return;       
+        }
         var from_city = document.getElementById("tra_from_city").value;
         if (from_city.length > 0){
+            if (!(City.includes(from_city))){
+                alert("無效縣市名");
+                return;            
+            }
             var flag = 0;
             tra_fromStation = getRailwayStationsFromCity(from_city, "TRA");
             for (i = 0; i < tra_fromStation.length; i++){
@@ -798,6 +813,10 @@ $(document).ready(function(){
         }
         var to_city = document.getElementById("tra_to_city").value;
         if (to_city.length > 0){
+            if (!(City.includes(to_city))){
+                alert("無效縣市名");
+                return;            
+            }
             var flag = 0;
             tra_toStation = getRailwayStationsFromCity(to_city, "TRA");
             for (i = 0; i < tra_toStation.length; i++){
@@ -863,8 +882,16 @@ $(document).ready(function(){
             alert('請輸入車站名');
             return;
         }
+        if (from_st == to_st){
+            alert('起訖站相同');
+            return;       
+        }
         var from_city = document.getElementById("thsr_from_city").value;
         if (from_city.length > 0){
+            if (!(City.includes(from_city))){
+                alert("無效縣市名");
+                return;            
+            }
             var flag = 0;
             thsr_fromStation = getRailwayStationsFromCity(from_city, "THSR");
             for (i = 0; i < thsr_fromStation.length; i++){
@@ -880,6 +907,10 @@ $(document).ready(function(){
         }
         var to_city = document.getElementById("thsr_to_city").value;
         if (to_city.length > 0){
+            if (!(City.includes(to_city))){
+                alert("無效縣市名");
+                return;            
+            }
             var flag = 0;
             thsr_toStation = getRailwayStationsFromCity(to_city, "THSR");
             for (i = 0; i < thsr_toStation.length; i++){
@@ -947,8 +978,12 @@ $(document).ready(function(){
         }
         UpdateBusSearchRecord(bus_city,bus_routeName);
         if (result['status'] == 5){
-            var r1 = '',r2 = '';
             var out_stops = result['cycle'];
+            if (out_stops.length == 0) {
+                alert('本路線無提供預估到達時間')
+                return;
+            }
+            var r1 = '',r2 = '';
             for (i = 0; i < out_stops.length; i++) {
                 r1 += '<li>'+ out_stops[i]['StopName'] +'</li>';
                 r2 += '<li>'+ out_stops[i]['show'] +'</li>';
@@ -964,38 +999,43 @@ $(document).ready(function(){
             $(".results .result").eq(0).css('opacity','1');
             return;
         }
-        document.getElementById('outbound').innerText = result['outboundName'];
-        document.getElementById('inbound').innerText = result['inboundName'];
-        var r1 = '',r2 = '';
         var out_stops = result['outbound'];
+        if (out_stops.length == 0) {
+            alert('本路線無提供預估到達時間')
+            return;
+        }
+        document.getElementById('outbound').innerText = result['outboundName'];
+        var r1 = '',r2 = '';
         for (i = 0; i < out_stops.length; i++) {
             r1 += '<li>'+ out_stops[i]['StopName'] +'</li>';
             r2 += '<li>'+ out_stops[i]['show'] +'</li>';
         }
         $('#outbound_st ul').html(r1);
         $('#outbound_time ul').html(r2);
+        $("#outbound_st").css('display','inline-block');
+        $("#outbound_time").css('display','inline-block');
+        $("#outbound").css('background','#ffd270');
+        $(".results h3").eq(0).css('opacity','1');
+        $(".results .result").eq(0).css('opacity','1');
         var r3 = '',r4 = '';
         var in_stops = result['inbound'];
         for (i = 0; i < in_stops.length; i++) {
             r3 += '<li>'+ in_stops[i]['StopName'] +'</li>';
             r4 += '<li>'+ in_stops[i]['show'] +'</li>';
         }
-        $('#inbound_st ul').html(r3);
-        $('#inbound_time ul').html(r4);
+        if (in_stops.length > 0){
+            document.getElementById('inbound').innerText = result['inboundName'];
+            $('#inbound_st ul').html(r3);
+            $('#inbound_time ul').html(r4);
+        }
         $("#inbound_st").hide();
         $("#inbound_time").hide();
-        $("#outbound_st").css('display','inline-block');
-        $("#outbound_time").css('display','inline-block');
-        $("#outbound").css('background','#ffd270');
         $("#inbound").css('background','#dacdb6');
-        $(".results h3").eq(0).css('opacity','1');
-        $(".results .result").eq(0).css('opacity','1');
     });
 
     $("#bus_update").click(function(){
         var result = getBusResult(bus_routeName, bus_city);
         document.getElementById('outbound').innerText = result['outboundName'];
-        document.getElementById('inbound').innerText = result['inboundName'];
         var r1 = '',r2 = '';
         var out_stops = result['outbound'];
         for (i = 0; i < out_stops.length; i++) {
@@ -1004,22 +1044,26 @@ $(document).ready(function(){
         }
         $('#outbound_st ul').html(r1);
         $('#outbound_time ul').html(r2);
+        $("#outbound_st").css('display','inline-block');
+        $("#outbound_time").css('display','inline-block');
+        $("#outbound").css('background','#ffd270');
+        $(".results h3").eq(0).css('opacity','1');
+        $(".results .result").eq(0).css('opacity','1');
         var r3 = '',r4 = '';
         var in_stops = result['inbound'];
+        
         for (i = 0; i < in_stops.length; i++) {
             r3 += '<li>'+ in_stops[i]['StopName'] +'</li>';
             r4 += '<li>'+ in_stops[i]['show'] +'</li>';
         }
-        $('#inbound_st ul').html(r3);
-        $('#inbound_time ul').html(r4);
+        if (in_stops.length > 0){
+            document.getElementById('inbound').innerText = result['inboundName'];
+            $('#inbound_st ul').html(r3);
+            $('#inbound_time ul').html(r4);
+        }
         $("#inbound_st").hide();
         $("#inbound_time").hide();
-        $("#outbound_st").css('display','inline-block');
-        $("#outbound_time").css('display','inline-block');
-        $("#outbound").css('background','#ffd270');
         $("#inbound").css('background','#dacdb6');
-        $(".results h3").eq(0).css('opacity','1');
-        $(".results .result").eq(0).css('opacity','1');
     });
 
     $("#outbound").click(function(){
@@ -1041,7 +1085,7 @@ $(document).ready(function(){
     })
 
     // 點擊submsg以外的其他區域時會隱藏submsg
-    $("article, .menu, #top").click(function(){
+    $("body").click(function(){
         console.log('hide2'); 
         $('.submsg').hide();
     });
@@ -1148,7 +1192,7 @@ function getBusRouteFromCity(city){
     var dataJSON = {
         "city":city
     };
-    var routes;
+    var result;
     $.ajax({ 
         url:req_url, 
         type: "POST", 
@@ -1157,10 +1201,10 @@ function getBusRouteFromCity(city){
         dataType: "json",
         async: false,
         success: function(data) {
-            routes = data['routes'];
+            result = data;
         }
     });
-    return routes;
+    return result;
 }
 
 function getRailwayStationsFromCity(city, type){

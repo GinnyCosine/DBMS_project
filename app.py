@@ -117,14 +117,14 @@ def busRouteFromCity():
     mycursor.execute('SELECT cityEn FROM Cities WHERE cityZh = "' + city + '"')
     result = mycursor.fetchall()
     if (len(result) == 0):
-        return
+        return jsonify({'status':1})
     cityEn = result[0][0]
     mycursor.execute('SELECT RouteName FROM busRoute WHERE City = "' + cityEn + '" ORDER BY RouteName')
     result = mycursor.fetchall()
     routes = []
     for route in result:
         routes.append({'route':route[0]})
-    return jsonify({'routes':routes})
+    return jsonify({'status':2, 'routes':routes})
 
 # get station options from city
 @app.route("/stationsFromCity/<trType>", methods = ['POST'])
@@ -158,31 +158,32 @@ def BusResult():
     if (len(result) == 0):
         return jsonify({'status':1})
     cityEn = result[0][0]
-    mycursor.execute('SELECT RouteID, DepartureStopName, DestinationStopName FROM busRoute WHERE City = "' + cityEn + '" AND RouteName = "' + routeName + '"')
+    mycursor.execute('SELECT RouteID, DepartureStopName, DestinationStopName FROM busRoute \
+        WHERE City = "' + cityEn + '" AND RouteName = "' + routeName + '"')
     result = mycursor.fetchall()
     if (len(result) == 0):
         return jsonify({'status':2})
     RouteID = result[0][0]
     DepartureStopName =  result[0][1]
     DestinationStopName =  result[0][2]
-    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 0 AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
+    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 0 \
+        AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
     dir0 = mycursor.fetchall()
-    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 1 AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
+    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 1 \
+        AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
     dir1 = mycursor.fetchall()
-    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 2 AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
+    mycursor.execute('SELECT StopName FROM busRouteStops WHERE Direction = 2 \
+        AND RouteID = "' + RouteID + '" ORDER BY StopSequence')
     dir2 = mycursor.fetchall()
     a = Auth(app_id, app_key)
     response = requests.get("https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/"+cityEn+"/1?$format=JSON&$filter=RouteName/Zh_tw eq '"+routeName+"'", headers= a.get_auth_header())
-    print("https://ptx.transportdata.tw/MOTC/v2/Bus/EstimatedTimeOfArrival/City/"+cityEn+"/1?$format=JSON&$filter=RouteName/Zh_tw eq '"+routeName+"'")
     data = json.loads(response.text)
     if len(data) == 0:
         return jsonify({'status':4})
     stops = {}
     for st in data:
-        #PlateNumb = st['PlateNumb']
         StopName = st['StopName']['Zh_tw']
         Direction = st['Direction']
-        #EstimateTime = st['EstimateTime']
         StopStatus = st['StopStatus']
         if "EstimateTime" in st:
             Time = str(int(round(int(st['EstimateTime'])/60, 0)))
@@ -195,9 +196,6 @@ def BusResult():
             stops[StopName][Direction] = sub
         else:
             stops[StopName] = {Direction:sub}
-    # cur_time = datetime.now()
-    # h = cur_time.hour
-    # m = cur_time.minute  
     if len(stops) == 0:
         return jsonify({'status':4})
     outbound = []
@@ -285,7 +283,8 @@ def BusResult():
                 show = stops[st[0]][idx]['NextBusTime']+'分'
         cycle.append({'StopName':st[0], 'show':show})
     if len(dir2) == 0:
-        return jsonify({'status':3, 'outbound':outbound, 'inbound':inbound, 'outboundName': '往'+DestinationStopName, 'inboundName':'往'+DepartureStopName})
+        return jsonify({'status':3, 'outbound':outbound, 'inbound':inbound, 'outboundName': '往'+\
+            DestinationStopName, 'inboundName':'往'+DepartureStopName})
     else:
         return jsonify({'status':5, 'cycle':cycle, 'cycleName':DestinationStopName+' - '+DepartureStopName})
 
@@ -310,7 +309,7 @@ def RailwayResult(trType):
     to_stationID = result[0][0]
     week = Week[datetime.strptime("2020" + str(month) + str(date), "%Y%m%d").weekday()]
     if trType == "TRA":
-        query = 'SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.ArrivalHour AS ArrivalHour, to_time.ArrivalMin AS ArrivalMin, TRAtrainsInfo.TripLine AS TripLine, TRAtrainsInfo.TrainTypeName AS TrainTypeName \
+        query = 'SELECT from_time.TrainNo AS TrainNo, from_time.DepartureHour AS DepartureHour, from_time.DepartureMin AS DepartureMin, to_time.ArrivalHour AS ArrivalHour, to_time.ArrivalMin AS ArrivalMin, TRAtrainsInfo.TrainTypeName AS TrainTypeName \
             FROM (SELECT TrainNo, ArrivalHour, ArrivalMin, StopSequence \
             FROM TRAtrainsTime WHERE StationID = ' + str(to_stationID) + ' AND \
             (ArrivalHour > ' + str(h) + ' OR (ArrivalHour = '+ str(h) + ' AND ArrivalMin >= ' + str(m) + '))) AS to_time, \
@@ -354,7 +353,6 @@ def RailwayResult(trType):
                 'TrainNo':item[0],
                 'DepartureTime':str(item[1])+':'+dm,
                 'ArrivalTime':str(item[3])+':'+am,
-                'TripLine':item[5],
                 'TrainTypeName':item[6],
                 'Duration': dur
             }
@@ -390,8 +388,10 @@ def updateRailwaySearchRecord(trType):
     to_city = result[0][0]
     cur = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if total < 5:
-        mycursor.execute('INSERT INTO User'+trType+'record (user, fromStationName, fromCity, toStationName, toCity, searchTime) VALUES ("' \
-        + user_ + '","'+ request.json['from_station'] +'","'+from_city+'","'+request.json['to_station']+'","'+to_city+'","'+cur+'")')
+        mycursor.execute('INSERT INTO User'+trType+'record \
+            (user, fromStationName, fromCity, toStationName, toCity, searchTime) VALUES ("' \
+            + user_ + '","'+ request.json['from_station'] +'","'+from_city+'","'+\
+            request.json['to_station']+'","'+to_city+'","'+cur+'")')
         connection.commit()
         return jsonify({'status':1})
     else:
@@ -400,8 +400,10 @@ def updateRailwaySearchRecord(trType):
         min_time = result[0][0]
         mycursor.execute('DELETE FROM User'+trType+'record WHERE searchTime = "'+str(min_time)+'" AND user = "'+user_+'"')
         connection.commit()
-        mycursor.execute('INSERT INTO User'+trType+'record (user, fromStationName, fromCity, toStationName, toCity, searchTime) VALUES ("' \
-        + user_ + '","'+ request.json['from_station'] +'","'+from_city+'","'+request.json['to_station']+'","'+to_city+'","'+cur+'")')
+        mycursor.execute('INSERT INTO User'+trType+'record \
+            (user, fromStationName, fromCity, toStationName, toCity, searchTime) VALUES ("' \
+            + user_ + '","'+ request.json['from_station'] +'","'+from_city+'","'+\
+            request.json['to_station']+'","'+to_city+'","'+cur+'")')
         connection.commit()
         return jsonify({'status':2})
 
@@ -429,28 +431,12 @@ def updateBusSearchRecord():
 
 @app.route("/getSearchRecord/<trType>/<target>", methods = ['GET'])
 def getSearchRecord(trType, target):
-    if trType == "Bus":
-        # mycursor.execute('SELECT RouteName, City FROM UserBusRecord WHERE user = "'+user_+'"')
-        print('SELECT DISTINCT('+target+') FROM UserBusRecord WHERE user = "'+user_+'"')
-        mycursor.execute('SELECT DISTINCT('+target+') FROM UserBusRecord WHERE user = "'+user_+'"')
-        result = mycursor.fetchall()
-        records = []
-        for rec in result:
-            records.append({"target":rec[0]})
-    elif trType == "TRA":
-        # mycursor.execute('SELECT fromStationName, fromCity, toStationName, toCity FROM UserTRArecord WHERE user = "'+user_+'"')
-        mycursor.execute('SELECT DISTINCT('+target+') FROM UserTRArecord WHERE user = "'+user_+'"')
-        result = mycursor.fetchall()
-        records = []
-        for rec in result:
-            records.append({"target":rec[0]})
-    else:
-        # mycursor.execute('SELECT fromStationName, fromCity, toStationName, toCity FROM UserTHSRrecord WHERE user = "'+user_+'"')
-        mycursor.execute('SELECT DISTINCT('+target+') FROM UserTHSRrecord WHERE user = "'+user_+'"')
-        result = mycursor.fetchall()
-        records = []
-        for rec in result:
-            records.append({"target":rec[0]})
+    mycursor.execute('SELECT DISTINCT('+target+') FROM User'+trType+'Record \
+         WHERE user = "'+user_+'" ORDER BY searchTime DESC')
+    result = mycursor.fetchall()
+    records = []
+    for rec in result:
+        records.append({"target":rec[0]})
     return jsonify({'records':records})
 
 @app.route("/serchRailway/<trType>", methods = ['POST'])
@@ -462,7 +448,6 @@ def serchRailway(trType):
     else:
         return jsonify({'status':2, 'stationID':result[0][0]})
 
-##### here !!!
 @app.route("/addMyRoute", methods = ['POST'])
 def addMyRoute():
     mycursor.execute('SELECT COUNT(DISTINCT(ID)) FROM UserMyRoute WHERE user = "' + user_ + '"')
@@ -506,7 +491,6 @@ def deleteMyRoute(routeID):
     connection.commit()
     for idx in range(int(routeID),int(total)):
         mycursor.execute('UPDATE UserMyRoute SET ID = '+ str(idx) +' WHERE user = "' + user_ + '" AND ID = '+str(idx+1))
-        print('UPDATE UserMyRoute SET ID = '+ str(idx) +' WHERE user = "' + user_ + '" AND ID = '+str(idx+1))
         connection.commit()
     return jsonify({'status':1})
 
@@ -550,13 +534,16 @@ def queryMyRoute(routeID):
         if each[1] > 1 and each[1] < len(result):
             where_clauses += ' AND '
     select_clause = 'SELECT * '
+    length = result[len(result)-1][1]
+    if length <= 1:
+        where_clauses = ''
     query = select_clause + from_clauses + where_clauses + order_clauses
     print(query)
     mycursor.execute(query)
     result2 = mycursor.fetchall()
     if len(result2) == 0:
         return jsonify({'status':2})
-    return jsonify({'status':1, 'result': result2, 'length':result[len(result)-1][1]})
+    return jsonify({'status':1, 'result': result2, 'length':length})
 
 if __name__ == "__main__":        # on running python app.py
     app.run()                     # run the flask app

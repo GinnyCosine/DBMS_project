@@ -153,7 +153,7 @@ button{
 }
 
 .route{
-    width: 80%;
+    max-width: 80%;
     box-sizing: border-box;
     -ms-transform: translate(60px, 0);
     -webkit-transform: translate(60px, 0);

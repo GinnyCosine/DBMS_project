@@ -7,7 +7,6 @@ $(document).ready(function(){
     });
     $("#logout").click(function(){
         userLogout();
-        user = getUser();
     });
     $(".menu li").eq(1).css('background','rgb(45, 121, 131)');
     $(".menu li").eq(1).css('color','#fff');
@@ -16,7 +15,7 @@ $(document).ready(function(){
         $('#add').toggle(300);
         myRoute = [];
         myRoute_cnt = 0;
-        document.getElementById('subroutes').innerHTML = '<button type="button" id="confirm">確定新增</button>';
+        document.getElementById('subroutes').innerHTML = '<button type="button" id="confirm">確定新增</button><button type="button" id="del">刪除</button>';
     });
 
     if (user['status'] == 1){
@@ -45,6 +44,7 @@ $(document).ready(function(){
             return;
         }
         var result = queryMyRoute(index);
+        console.log(result)
         text = '';
         for (i = 1; i <= result['length']; i++){
             if (i > 1){
@@ -572,6 +572,10 @@ $(document).ready(function(){
             alert('請輸入車站名');
             return;
         }
+        if (from_st == to_st){
+            alert('起訖站相同');
+            return;       
+        }
         var from_city = document.getElementById("tra_from_city").value;
         if (from_city.length > 0){
             var flag = 0;
@@ -630,6 +634,10 @@ $(document).ready(function(){
         if (from_st.length == 0 || to_st.length == 0) {
             alert('請輸入車站名');
             return;
+        }
+        if (from_st == to_st){
+            alert('起訖站相同');
+            return;       
         }
         var from_city = document.getElementById("thsr_from_city").value;
         if (from_city.length > 0){
@@ -690,12 +698,18 @@ $(document).ready(function(){
         updateMyRoute(routes);
         myRoute = [];
         myRoute_cnt = 0;
-        document.getElementById('subroutes').innerHTML = '<button type="button" id="confirm">確定新增</button>';
+        document.getElementById('subroutes').innerHTML = '<button type="button" id="confirm">確定新增</button><button type="button" id="del">刪除</button>';
+    });
+
+    $("#subroutes").on('click','#del',function(){
+        myRoute = [];
+        myRoute_cnt = 0;
+        document.getElementById('subroutes').innerHTML = '<button type="button" id="confirm">確定新增</button><button type="button" id="del">刪除</button>';
     });
 
     
     // 點擊submsg以外的其他區域時會隱藏submsg
-    $("article, .menu, header").click(function(){
+    $("body").click(function(){
         console.log('hide2'); 
         $('.submsg').hide();
     });
