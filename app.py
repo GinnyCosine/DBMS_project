@@ -84,6 +84,12 @@ def user_login():
         user_= user
         return jsonify({'status':3})   # success
 
+@app.route("/logout", methods = ['GET'])
+def user_logout():
+    global user_
+    user_= ''
+    return jsonify({'status':1})
+
 @app.route("/user_name", methods = ['GET'])
 def user_name():
     if len(user_) == 0:

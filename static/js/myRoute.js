@@ -2,13 +2,13 @@ $(document).ready(function(){
 
     City = ['桃園市','嘉義縣','彰化縣','嘉義市','新竹市','新竹縣','花蓮縣','宜蘭縣','屏東縣','高雄市','基隆市','金門縣','連江縣','苗栗縣','南投縣','澎湖縣','臺南市','臺北市','新北市','臺東縣','臺中市','雲林縣'];
     user = getUser();
-    if (user['status'] == 2){
-        $("#login").hide();
-    }
     $("#login").click(function(){
         window.location.href = "http://127.0.0.1:5000/";
     });
-    document.getElementById('user_name').innerHTML = 'Hi! ' + user['userName'];
+    $("#logout").click(function(){
+        userLogout();
+        user = getUser();
+    });
     $(".menu li").eq(1).css('background','rgb(45, 121, 131)');
     $(".menu li").eq(1).css('color','#fff');
 
@@ -35,6 +35,7 @@ $(document).ready(function(){
         updateMyRoute(routes);
     });
 
+    // 查詢路線
     $("#routes").on('click','.query_route',function(){
         var id = $(this).attr('id');
         var index = id.substring(11,id.length);
@@ -45,8 +46,12 @@ $(document).ready(function(){
         }
         var result = queryMyRoute(index);
         text = '';
-        for (i = 1; i <= result['length']; i++)
+        for (i = 1; i <= result['length']; i++){
+            if (i > 1){
+                text += '<div class="seq_res_space">123</div>';
+            }
             text += '<div class="seq_res">'+i+'</div>';
+        }
         text += '<br><div>';
         for (i = 1; i <= result['length']; i++) {
             if (i > 1){
@@ -688,6 +693,28 @@ $(document).ready(function(){
         document.getElementById('subroutes').innerHTML = '<button type="button" id="confirm">確定新增</button>';
     });
 
+    
+    // 點擊submsg以外的其他區域時會隱藏submsg
+    $("article, .menu, header").click(function(){
+        console.log('hide2'); 
+        $('.submsg').hide();
+    });
+
+    $("input").click(function (event){
+        $('.submsg').hide();
+        var msg = '#msg_'+$(this).attr('id');
+        if (msg == '#msg_bus_route'){
+            for (i = 0; i < 8; i++){
+                $(msg +' .submsg').eq(i).show();
+            }
+            event.stopPropagation();    // 阻止事件往上
+            return;
+        }
+        $(msg +' .submsg').show();
+        event.stopPropagation();    // 阻止事件往上
+    })
+
+
 });
 
 function addMyRoute(myRoute){
@@ -743,6 +770,15 @@ function getUser(){
             user = data;
         }
     });
+    if (user['status'] == 2){
+        $("#login").hide();
+        $("#logout").show();
+    }
+    else{
+        $("#login").show();
+        $("#logout").hide();       
+    }
+    document.getElementById('user_name').innerHTML = 'Hi! ' + user['userName'];
     return user;
 }
 
@@ -874,4 +910,21 @@ function updateMyRoute(routes){
             h += '<div class="route_result" id="route_result'+i+'"></div> </article>';
     }
     document.getElementById('routes').innerHTML = h;
+}
+
+function userLogout(){
+    var req_url = "http://127.0.0.1:5000/logout";
+    var result;
+    $.ajax({ 
+        url: req_url, 
+        type: "GET", 
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    location.reload();
+    return result;
 }

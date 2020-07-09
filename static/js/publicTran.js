@@ -6,13 +6,13 @@ $(document).ready(function(){
     // Initial option set
     City = ['桃園市','嘉義縣','彰化縣','嘉義市','新竹市','新竹縣','花蓮縣','宜蘭縣','屏東縣','高雄市','基隆市','金門縣','連江縣','苗栗縣','南投縣','澎湖縣','臺南市','臺北市','新北市','臺東縣','臺中市','雲林縣'];
     user = getUser();
-    if (user['status'] == 2){
-        $("#login").hide();
-    }
     $("#login").click(function(){
         window.location.href = "http://127.0.0.1:5000/";
     });
-    document.getElementById('user_name').innerHTML = 'Hi! ' + user['userName'];
+    $("#logout").click(function(){
+        userLogout();
+        user = getUser();
+    });
     $(".menu li").eq(0).css('background','rgb(45, 121, 131)');
     $(".menu li").eq(0).css('color','#fff');
     
@@ -1076,6 +1076,15 @@ function getUser(){
             user = data;
         }
     });
+    if (user['status'] == 2){
+        $("#login").hide();
+        $("#logout").show();
+    }
+    else{
+        $("#login").show();
+        $("#logout").hide();       
+    }
+    document.getElementById('user_name').innerHTML = 'Hi! ' + user['userName'];
     return user;
 }
 
@@ -1292,8 +1301,6 @@ function getSearchRecord(type, target) {
     if (user['status'] == 1){
         return;
     }
-    console.log(type);
-    console.log(target);
     var req_url = "http://127.0.0.1:5000/getSearchRecord/"+type+"/"+target;
     var result;
     $.ajax({ 
@@ -1306,5 +1313,22 @@ function getSearchRecord(type, target) {
             result = data['records'];
         }
     });
+    return result;
+}
+
+function userLogout(){
+    var req_url = "http://127.0.0.1:5000/logout";
+    var result;
+    $.ajax({ 
+        url: req_url, 
+        type: "GET", 
+        contentType: 'application/json; charset=utf-8',
+        dataType: "json",
+        async: false,
+        success: function(data) {
+            result = data;
+        }
+    });
+    location.reload();
     return result;
 }

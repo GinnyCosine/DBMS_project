@@ -215,3 +215,13 @@ article:nth-child(1) .current_time{
     -webkit-transform: translate(10px, 0);
     transform: translate(10px, 0);
 }
+
+.result{
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+button{
+    font-family: 'Noto Sans TC', sans-serif;
+
+}
