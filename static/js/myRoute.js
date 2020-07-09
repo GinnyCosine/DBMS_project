@@ -67,21 +67,11 @@ $(document).ready(function(){
             text += '<div class="subresult">';
             for (j = 0; j < result['result'][i].length; j+=5) {
                 if (j > 0) {
-                    var dis_h = result['result'][i][j+1] - result['result'][i][j+1-3];
                     var dis_m = result['result'][i][j+2] - result['result'][i][j+2-3];
                     if (dis_m < 0) {
-                        dis_h -= 1;
                         dis_m += 60;
                     }
-                    var dis;
-                    if (dis_h == 0) {
-                        if (dis_m == 0) {
-                            dis = '0分';
-                        }
-                        else{
-                            dis = dis_m + '分';
-                        }
-                    }
+                    var dis = dis_m + '分';
                     text += '<div class="subsubresult interval">' + dis + '</div>';
                 }
                 if (result['result'][i][j+2] < 10) {

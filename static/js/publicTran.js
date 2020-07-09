@@ -1181,7 +1181,7 @@ function get24Time(h, ampm){
             return_h = 12;
         }
         else {
-            return_h = h + 12;
+            return_h = parseInt(h,10) + 12;
         }
     }
     return return_h;
