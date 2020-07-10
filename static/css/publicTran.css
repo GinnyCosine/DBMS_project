@@ -225,3 +225,18 @@ button{
     font-family: 'Noto Sans TC', sans-serif;
 
 }
+
+.result a{
+    color: rgb(105, 93, 80);
+    text-decoration: none;
+}
+
+.result a li{
+    text-decoration: none;
+    background: #fde1a3 !important;
+}
+
+.result a li:hover{
+    background: #ffce65 !important;
+    cursor: pointer;
+}

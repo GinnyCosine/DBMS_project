@@ -856,7 +856,7 @@ $(document).ready(function(){
         var trains = result['trains'];
         var r1 = '',r2 = '', r3 = '', r4 = '', r5 = '';
         for (i = 0; i < trains.length; i++) {
-            r1 += '<li>'+ trains[i]['TrainNo'] +'</li>';
+            r1 += '<a href="/train/'+ "TRA" +'/'+ trains[i]['TrainNo'] +'" target="_blank"><li>'+ trains[i]['TrainNo'] +'</li></a>';
             r2 += '<li>'+ trains[i]['TrainTypeName'] +'</li>';
             r3 += '<li>'+ trains[i]['DepartureTime'] +'</li>';
             r4 += '<li>'+ trains[i]['ArrivalTime'] +'</li>';
@@ -950,7 +950,7 @@ $(document).ready(function(){
         var trains = result['trains'];
         var r1 = '',r2 = '', r3 = '';
         for (i = 0; i < trains.length; i++) {
-            r1 += '<li>'+ trains[i]['TrainNo'] +'</li>';
+            r1 += '<a href="/train/'+ "THSR" +'/'+ trains[i]['TrainNo'] +'" target="_blank"><li>'+ trains[i]['TrainNo'] +'</li></a>';
             r2 += '<li>'+ trains[i]['DepartureTime'] +'</li>';
             r3 += '<li>'+ trains[i]['ArrivalTime'] +'</li>';
         }

@@ -64,9 +64,26 @@ def index():
 def publicTran():
     return render_template('publicTran.html')
 
+@app.route("/train/<trType>/<trainNo>")
+def train(trType, trainNo):
+    return render_template('train.html')
+
 @app.route("/myRoute")
 def myRoute():
     return render_template('myRoute.html')
+
+@app.route("/getTrain", methods = ['POST'])
+def getTrain():
+    tmp = request.json['url'].split('/')
+    train_type = tmp[4]
+    train_no = tmp[5]
+    mycursor.execute('SELECT ' + train_type + 'stations.StationName, ' + train_type + \
+                     'trainsTime.DepartureHour, ' + train_type + 'trainsTime.DepartureMin \
+                     FROM ' + train_type + 'trainsTime, ' + train_type + 'stations \
+                     WHERE ' + train_type + 'trainsTime.StationID =  ' + train_type + 'stations.StationID \
+                     AND TrainNo = ' + train_no + ' ORDER BY StopSequence')
+    result = mycursor.fetchall()
+    return jsonify({'stations':result, 'TrainNo':train_no})
 
 # request pwd of user
 @app.route("/login", methods = ['POST'])

@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC&display=swap');
+
+body{
+    font-family: 'Noto Sans TC', sans-serif;
+}
+
+header{
+    width: 220px;
+    font-size: 20px;
+    text-align: center;
+    padding: 10px 0;
+}
+
+.block{
+    width: 110px;
+    display: inline-block;
+    font-size: 17px;
+    text-align: center;
+}
+
+.block:nth-child(2){
+    background: #d2e4e1;
+}
+
+.block:nth-child(1){
+    background: #d2e4e1;
+}
+
+#trains{
+}
